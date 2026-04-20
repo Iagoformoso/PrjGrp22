@@ -22,11 +22,6 @@ nbdist/
 build/
 dist/
 
-# --- Eclipse ---
-.project
-.classpath
-.settings/
-
 # --- VSCode ---
 .vscode/
 .factorypath
