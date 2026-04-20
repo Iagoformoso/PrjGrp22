@@ -1,4 +1,4 @@
-package com.sistema.modelo;
+package com.sistema.modelo.enums;
 
 public enum Categoria {
     

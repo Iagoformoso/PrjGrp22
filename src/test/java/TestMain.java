@@ -3,7 +3,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-public class TestMain {
+class TestMain {
 
     @Test
     public void testMainOutput() {
@@ -24,4 +24,5 @@ public class TestMain {
         // 4. Restauramos la consola original
         System.setOut(originalOut);
     }
+    
 }
