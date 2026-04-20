@@ -6,6 +6,8 @@ pom.xml.versionsBackup
 pom.xml.restore
 release.properties
 
+org.eclipse.m2e.core.prefs
+
 # --- IntelliJ IDEA ---
 .idea/
 *.iml
