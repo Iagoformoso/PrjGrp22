@@ -110,10 +110,6 @@ public class FachadaAplicacion {
     public List<StockProducto> visualizarProductosYStock(String idMaquina) throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
 
-        if (maquina == null) {
-            throw new IllegalArgumentException("No existe ninguna máquina con el id indicado");
-        }
-
         return stockDAO.getStockMaquina(maquina);
     }
 
