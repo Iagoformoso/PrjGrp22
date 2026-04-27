@@ -45,7 +45,6 @@ public class GeneradorAlertas {
 
             // Comprobamos si el stock resultante es critico
             if ((stock.getCantidad() - perdidaTotal) < stockMinimo) {
-                System.out.println("Alerta-Stock: " + stock.getMaquina().toString() + " " + stock.getProducto().toString());
                 return true;
             }
         }

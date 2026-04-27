@@ -66,7 +66,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                                         Categoria.BEBIDA);
 
                 } catch (OperacionNoExitosa one) {
-                        System.out.println(one.getMessage());
+                        
                 }
 
         }
@@ -107,7 +107,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(10, resultado.get(0).getCantidad());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        System.out.println(mne.getMessage());
+                        
                 }
 
         }
@@ -147,7 +147,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertTrue(resultado.isEmpty());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        System.out.println(mne.getMessage());
+                        
                 }
 
         }
@@ -213,7 +213,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(4, resultado.get(0).getCantidad());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        System.out.println(mne.getMessage());
+                        
                 }
 
         }
@@ -256,7 +256,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertTrue(resultado.isEmpty());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        System.out.println(mne.getMessage());
+                        
                 }
 
         }
@@ -303,7 +303,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(10, resultado.get(0).getCantidad());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        System.out.println(mne.getMessage());
+                        
                 }
 
         }
@@ -363,7 +363,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(maquina, resultado.get(0).getMaquina());
 
                 } catch (OperacionNoExitosa | MaquinaNoEncontrada ex) {
-                        System.out.println(ex.getMessage());
+                        
                 }
 
         }

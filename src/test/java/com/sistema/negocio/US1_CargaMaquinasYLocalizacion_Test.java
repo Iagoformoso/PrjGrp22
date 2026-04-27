@@ -9,10 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sistema.excepciones.MaquinaNoEncontrada;
+import com.sistema.excepciones.OperacionNoExitosa;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.enums.Estado;
-
-import com.sistema.excepciones.*;
 
 public class US1_CargaMaquinasYLocalizacion_Test {
 
@@ -33,7 +33,7 @@ public class US1_CargaMaquinasYLocalizacion_Test {
                                         0f);
 
                 } catch (OperacionNoExitosa one) {
-                        System.out.println(one.getMessage());
+                        
                 }
 
         }
