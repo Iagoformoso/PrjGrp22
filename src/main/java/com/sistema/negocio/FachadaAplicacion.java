@@ -7,6 +7,7 @@ import com.sistema.datos.MaquinaDAO;
 import com.sistema.datos.ProductoDAO;
 import com.sistema.datos.StockDAO;
 import com.sistema.datos.VentaDAO;
+import com.sistema.excepciones.MaquinaNoEncontrada;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.PosicionGPS;
 import com.sistema.modelo.entidades.Producto;
@@ -75,11 +76,11 @@ public class FachadaAplicacion {
         return agregarStock(idMaquina, idProducto, cantidad, null);
     }
 
-    public List<StockProducto> visualizarProductosYStock(String idMaquina) {
+    public List<StockProducto> visualizarProductosYStock(String idMaquina) throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
 
         if (maquina == null) {
-            throw new IllegalArgumentException("No existe ninguna máquina con el id indicado");
+            throw new MaquinaNoEncontrada("No existe ninguna máquina con el id indicado");
         }
 
         return stockDAO.getStockMaquina(maquina);
