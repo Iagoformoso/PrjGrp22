@@ -19,6 +19,7 @@ public class MaquinaDAO {
     		throw new OperacionNoExitosa("Ya existe una máquina expendedora con el mismo identificador.");
     	} catch (MaquinaNoEncontrada one) {
     		// Si salta una excepcion, ergo, no hay una máquina con el mismo id, se introduce
+    		System.out.println("Maquina añadida");
     		maquinas.add(maquina);
     	}
     }
@@ -49,7 +50,6 @@ public class MaquinaDAO {
     public void deleteMaquinaExpendedora(String id) throws MaquinaNoEncontrada {
         Iterator<MaquinaExpendedora> iterator = maquinas.iterator();
         while (iterator.hasNext()) {
-            MaquinaExpendedora maquina = iterator.next();
             if(iterator.next().getIdMaquina().equals(id)) {
                 iterator.remove();
                 return;

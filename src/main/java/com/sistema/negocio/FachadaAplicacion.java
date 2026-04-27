@@ -65,22 +65,12 @@ public class FachadaAplicacion {
     	return maquinaDAO.getMaquinaGPS(gps);
     }
     
-    public void modificarMaquina(MaquinaExpendedora maquina) {
-    	try {
+    public void modificarMaquina(MaquinaExpendedora maquina) throws MaquinaNoEncontrada {
         	maquinaDAO.modifyMaquina(maquina);
-    		
-    	} catch (MaquinaNoEncontrada mne) {
-    		System.out.println(mne.getMessage());
-    	}
     }
     
-    public void eliminarMaquina(String id) {
-    	try {
-    		maquinaDAO.deleteMaquinaExpendedora(id);
-    	}
-    	catch(MaquinaNoEncontrada mne) {
-    		System.out.println(mne.getMessage());
-    	}
+    public void eliminarMaquina(String id) throws MaquinaNoEncontrada {
+    	maquinaDAO.deleteMaquinaExpendedora(id);
     }
 
     // Productos
