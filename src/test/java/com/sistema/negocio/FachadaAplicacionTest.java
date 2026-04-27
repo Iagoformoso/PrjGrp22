@@ -201,7 +201,7 @@ public class FachadaAplicacionTest {
         }
 
         // ----------- Tests HU1 - Carga de máquinas y localización -----------
-        // HU1-CP1 - Crear máquina: se añade correctamente y se puede recuperar
+        // HU1-CN1 - Crear máquina: se añade correctamente y se puede recuperar
         @Test
         void crearMaquina_MaquinaValida_SeGuardaCorrectamente() throws Exception {
                 // Se crea una nueva máquina
@@ -218,7 +218,7 @@ public class FachadaAplicacionTest {
                 assertEquals(nueva, encontrada);
         }
 
-        // HU1-CP2 - Buscar máquina por id existente: la devuelve correctamente
+        // HU1-CN2 - Buscar máquina por id existente: la devuelve correctamente
         @Test
         void buscarMaquina_IdExistente_DevuelveMaquina() throws Exception {
                 // Se crea una nueva máquina
@@ -235,7 +235,7 @@ public class FachadaAplicacionTest {
                 assertEquals(nueva.getIdMaquina(), encontrada.getIdMaquina());
         }
 
-        // HU1-CP3 - Listar máquinas: devuelve todas las creadas
+        // HU1-CN3 - Listar máquinas: devuelve todas las creadas
         @Test
         void listarMaquinas_VariasMaquinas_DevuelveTodasCorrectamente() throws Exception {
                 // Se crea una segunda máquina
@@ -252,18 +252,15 @@ public class FachadaAplicacionTest {
                 assertTrue(maquinas.contains(maquina));
                 assertTrue(maquinas.contains(segunda));
         }
-        
-        // Casos de uso 5 a 10todavía no pueden incluirse: falta mergear el main
-        // HU1-CP4 - Buscar máquina por id inexistente: lanza excepción
 
+        // HU1-CN4 - Buscar máquina por id inexistente: lanza excepción
         @Test
         void buscarMaquina_IdInexistente_LanzaExcepcion() {
                 assertThrows(Exception.class,
                                 () -> fachada.buscarMaquina("MAQ-NO-EXISTE"));
         }
 
-        // HU1-CP5 - Buscar máquina por GPS existente: la devuelve correctamente
-
+        // HU1-CN5 - Buscar máquina por GPS existente: la devuelve correctamente
         @Test
         void buscarMaquinaGPS_CoordenadasExistentes_DevuelveMaquina() throws Exception {
                 // Se busca una máquina
@@ -271,24 +268,21 @@ public class FachadaAplicacionTest {
                                 maquina.getPosicionGPS().getLatitud(),
                                 maquina.getPosicionGPS().getLongitud(),
                                 maquina.getPosicionGPS().getAltitud());
-                
 
-                // Se comprueba que sea la misma
-                assertNotNull(encontrada);
+                // Se comprueba si la máquina es la encontrada
                 assertEquals(maquina, encontrada);
-
         }
 
-        // HU1-CP6 - Buscar máquina por GPS inexistente: lanza excepción
-
+        // HU1-CN6 - Buscar máquina por GPS inexistente: lanza excepción
         @Test
         void buscarMaquinaGPS_CoordenadasInexistentes_LanzaExcepcion() {
                 assertThrows(Exception.class,
-                                () -> fachada.buscarMaquina(0.0f, 0.0f, 0.0f));
+                                () -> fachada.buscarMaquina(0.0f,
+                                                0.0f,
+                                                0.0f));
         }
 
-        // HU1-CP7 - Eliminar máquina existente: ya no se puede recuperar
-
+        // HU1-CN7 - Eliminar máquina existente: ya no se puede recuperar
         @Test
         void eliminarMaquina_MaquinaExistente_SeElimina() throws Exception {
                 fachada.eliminarMaquina(maquina.getIdMaquina());
@@ -296,16 +290,14 @@ public class FachadaAplicacionTest {
                                 () -> fachada.buscarMaquina(maquina.getIdMaquina()));
         }
 
-        // HU1-CP8 - Eliminar máquina inexistente: lanza excepción
-
+        // HU1-CN8- Eliminar máquina inexistente: lanza excepción
         @Test
         void eliminarMaquina_MaquinaInexistente_LanzaExcepcion() {
                 assertThrows(Exception.class,
                                 () -> fachada.eliminarMaquina("MAQ-NO-EXISTE"));
         }
 
-        // HU1-CP9 - Modificar máquina existente: los datos se actualizan
-
+        // HU1-CN9 - Modificar máquina existente: los datos se actualizan
         @Test
         void modificarMaquina_MaquinaExistente_ActualizaDatos() throws Exception {
                 maquina.setDireccion("Nova dirección");
@@ -315,16 +307,29 @@ public class FachadaAplicacionTest {
                 assertEquals("Nova dirección", actualizada.getDireccion());
         }
 
-        // HU1-CP10 - Modificar máquina inexistente: lanza excepción
-
+        // HU1-CN10 - Modificar máquina inexistente: lanza excepción
         @Test
         void modificarMaquina_MaquinaInexistente_LanzaExcepcion() throws Exception {
                 MaquinaExpendedora fantasma = fachada.crearMaquina(
-                                Estado.ACTIVO, "Fantasma", 1.0f, 1.0f, 0f);
+                                Estado.ACTIVO,
+                                "Fantasma",
+                                1.0f,
+                                1.0f,
+                                0f);
                 fachada.eliminarMaquina(fantasma.getIdMaquina());
 
                 assertThrows(MaquinaNoEncontrada.class,
                                 () -> fachada.modificarMaquina(fantasma));
         }
 
+        // CB1 - getMaquinaPorId con lista vacía: lanza MaquinaNoEncontrada
+        // Camino: lista vacía → no entra al for → lanza excepción
+        @Test
+        void buscarMaquina_ListaVacia_LanzaExcepcion() throws Exception {
+                // Se crea una nueva fachada vacía
+                FachadaAplicacion fachadaVacia = new FachadaAplicacion();
+
+                assertThrows(MaquinaNoEncontrada.class,
+                                () -> fachadaVacia.buscarMaquina("MAQ-CUALQUIERA"));
+        }
 }
