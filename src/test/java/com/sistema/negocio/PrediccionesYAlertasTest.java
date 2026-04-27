@@ -169,7 +169,6 @@ public class PrediccionesYAlertasTest {
             field.setAccessible(true);
             field.set(v, cal.getTime());
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
