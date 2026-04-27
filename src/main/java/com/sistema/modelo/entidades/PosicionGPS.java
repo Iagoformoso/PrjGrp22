@@ -4,19 +4,16 @@ import java.util.Date;
 import java.util.UUID;
 
 public class PosicionGPS {
-    private String idGPS;
     private float latitud;
     private float longitud;
     private float altitud;
     private Date timestamp;
 
     public PosicionGPS() {
-        this.idGPS = "GPS-" + UUID.randomUUID().toString().substring(0, 8);
         this.timestamp = new Date(); //Fecha actual
     }
 
     public PosicionGPS(float latitud, float longitud, float altitud) {
-        this.idGPS = "GPS-" + UUID.randomUUID().toString().substring(0, 8);
         this.latitud = latitud;
         this.longitud = longitud;
         this.altitud = altitud;
@@ -24,10 +21,6 @@ public class PosicionGPS {
     }
 
     //GETTERS
-
-    public String getIdGPS() {
-        return idGPS;
-    }
 
     public float getLatitud() {
         return latitud;
@@ -61,7 +54,7 @@ public class PosicionGPS {
 
     @Override
     public String toString() {
-        return "GPS[" + idGPS + "] lat: " + latitud + ", long: " + longitud + ", al: " + altitud + "]";
+        return "lat: " + latitud + ", long: " + longitud + ", al: " + altitud + "]";
     }
 
     @Override
@@ -69,7 +62,9 @@ public class PosicionGPS {
         if (this == obj) return true;
         if (obj instanceof PosicionGPS) {
             PosicionGPS p = (PosicionGPS) obj;
-            return idGPS.equals(p.getIdGPS());
+            return Float.compare(this.latitud, p.latitud) == 0
+                && Float.compare(this.longitud, p.longitud) == 0
+                && Float.compare(this.altitud, p.altitud) == 0;
         }
         return false;
     }
