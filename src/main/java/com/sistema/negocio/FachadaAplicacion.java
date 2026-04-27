@@ -67,7 +67,7 @@ public class FachadaAplicacion {
     public StockProducto agregarStock(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad) {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
-        StockProducto stock = new StockProducto(producto, maquina, cantidad,fechaCaducidad);
+        StockProducto stock = new StockProducto(producto, maquina, cantidad, fechaCaducidad);
         stockDAO.addStock(stock);
         return stock;
     }
@@ -96,12 +96,27 @@ public class FachadaAplicacion {
     }
 
     // Ventas
-
-    public Venta registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago) {
+    // Enrique: añadió algunas validaciones (pendiente de revisión)
+    public Venta registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago) throws MaquinaNoEncontrada {
+        // Problema: getMaquinaPorId() en la versión actual de main todavía no lanza
+        // MaquinaNoEncontrada
+        // Por ahora, devuelve null
+        // Se añade la validación temporalmente
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
+        if (maquina == null)
+            throw new MaquinaNoEncontrada("Máquina no encontrada");
+
         Producto producto = productoDAO.getProductoPorId(idProducto);
+        if (producto == null)
+            throw new IllegalArgumentException("Producto no encontrado");
 
         StockProducto stock = stockDAO.getStockProductoMaquina(maquina, producto);
+        if (stock == null)
+            throw new IllegalArgumentException("No hay stock de ese producto en esa máquina");
+
+        if (stock.getCantidad() <= 0)
+            throw new IllegalStateException("No hay existencias disponibles");
+
         stock.registrarVenta();
 
         Venta venta = new Venta(metodoPago, producto, maquina);
