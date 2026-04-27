@@ -1,14 +1,20 @@
 package com.sistema.negocio;
 
+import java.util.Date;
+import java.util.List;
+
 import com.sistema.datos.MaquinaDAO;
 import com.sistema.datos.ProductoDAO;
 import com.sistema.datos.StockDAO;
 import com.sistema.datos.VentaDAO;
-import com.sistema.modelo.entidades.*;
-import com.sistema.modelo.enums.*;
-
-import java.util.Date;
-import java.util.List;
+import com.sistema.modelo.entidades.MaquinaExpendedora;
+import com.sistema.modelo.entidades.PosicionGPS;
+import com.sistema.modelo.entidades.Producto;
+import com.sistema.modelo.entidades.StockProducto;
+import com.sistema.modelo.entidades.Venta;
+import com.sistema.modelo.enums.Categoria;
+import com.sistema.modelo.enums.Estado;
+import com.sistema.modelo.enums.MetodoPago;
 
 public class FachadaAplicacion {
     private final MaquinaDAO maquinaDAO;
@@ -23,9 +29,10 @@ public class FachadaAplicacion {
         this.ventaDAO = new VentaDAO();
     }
 
-    //Maquinas
+    // Maquinas
 
-    public MaquinaExpendedora crearMaquina(Estado estado, String direccion, float latitud, float longitud, float altitud) {
+    public MaquinaExpendedora crearMaquina(Estado estado, String direccion, float latitud, float longitud,
+            float altitud) {
         PosicionGPS gps = new PosicionGPS(latitud, longitud, altitud);
         MaquinaExpendedora maquina = new MaquinaExpendedora(estado, direccion, gps);
         maquinaDAO.addMaquinaExpendedora(maquina);
@@ -40,8 +47,7 @@ public class FachadaAplicacion {
         return maquinaDAO.getMaquinaPorId(id);
     }
 
-
-    //Productos
+    // Productos
 
     public Producto crearProducto(String marca, String nombre, float precio, String descripcion, Categoria categoria) {
         Producto producto = new Producto(marca, nombre, precio, descripcion, categoria);
@@ -57,17 +63,25 @@ public class FachadaAplicacion {
         return productoDAO.getProductoPorId(id);
     }
 
-
-    public StockProducto agregarStock(String idMaquina, String idProducto, int cantidad) {
+    public StockProducto agregarStock(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad) {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
-        StockProducto stock = new StockProducto(producto, maquina, cantidad);
+        StockProducto stock = new StockProducto(producto, maquina, cantidad,fechaCaducidad);
         stockDAO.addStock(stock);
         return stock;
     }
 
-    public List<StockProducto> getStockMaquina(String idMaquina) {
+    public StockProducto agregarStock(String idMaquina, String idProducto, int cantidad) {
+        return agregarStock(idMaquina, idProducto, cantidad, null);
+    }
+
+    public List<StockProducto> visualizarProductosYStock(String idMaquina) {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
+
+        if (maquina == null) {
+            throw new IllegalArgumentException("No existe ninguna máquina con el id indicado");
+        }
+
         return stockDAO.getStockMaquina(maquina);
     }
 
@@ -80,7 +94,7 @@ public class FachadaAplicacion {
         return stockDAO.getAllStockAReponer();
     }
 
-    //Ventas
+    // Ventas
 
     public Venta registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago) {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);

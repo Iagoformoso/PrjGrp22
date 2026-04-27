@@ -20,21 +20,21 @@ public class StockDAO {
     }
 
     public StockProducto getStockPorId(String id) {
-        for(StockProducto stock : stocks) {
-            if(stock.getIdStock().equals(id)) {
+        for (StockProducto stock : stocks) {
+            if (stock.getIdStock().equals(id)) {
                 return stock;
             }
         }
 
-        //Podria ser exception
+        // Podria ser exception
         return null;
     }
 
     public void deleteStock(String id) {
         Iterator<StockProducto> iterator = stocks.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             StockProducto stock = iterator.next();
-            if(stock.getIdStock().equals(id)) {
+            if (stock.getIdStock().equals(id)) {
                 iterator.remove();
                 break;
             }
@@ -51,19 +51,18 @@ public class StockDAO {
 
     public List<StockProducto> getStockMaquina(MaquinaExpendedora maquina) {
         List<StockProducto> stockMaquina = new ArrayList<>();
-        for(StockProducto stock : stocks) {
-            if(stock.getMaquina().equals(maquina)) {
+        for (StockProducto stock : stocks) {
+            if (stock.getMaquina().equals(maquina)) {
                 stockMaquina.add(stock);
             }
         }
-
         return stockMaquina;
     }
 
     public List<StockProducto> getStockProducto(Producto producto) {
         List<StockProducto> stockProducto = new ArrayList<>();
-        for(StockProducto stock : stocks) {
-            if(stock.getProducto().equals(producto)) {
+        for (StockProducto stock : stocks) {
+            if (stock.getProducto().equals(producto)) {
                 stockProducto.add(stock);
             }
         }
@@ -71,21 +70,21 @@ public class StockDAO {
     }
 
     public StockProducto getStockProductoMaquina(MaquinaExpendedora maquina, Producto producto) {
-        for(StockProducto stock : stocks) {
-            if(stock.getMaquina().equals(maquina) && stock.getProducto().equals(producto)) {
+        for (StockProducto stock : stocks) {
+            if (stock.getMaquina().equals(maquina) && stock.getProducto().equals(producto)) {
                 return stock;
             }
         }
 
-        //Podria ser exception
+        // Podria ser exception
         return null;
     }
 
     public List<StockProducto> getStockAReponerMaquina(MaquinaExpendedora maquina) {
         List<StockProducto> stockReponer = new ArrayList<>();
-        for(StockProducto stock : stocks) {
-            if(stock.getMaquina().equals(maquina)) {
-                if(stock.necesitaReposicion()) {
+        for (StockProducto stock : stocks) {
+            if (stock.getMaquina().equals(maquina)) {
+                if (stock.necesitaReposicion()) {
                     stockReponer.add(stock);
                 }
             }
@@ -96,14 +95,13 @@ public class StockDAO {
 
     public List<StockProducto> getAllStockAReponer() {
         List<StockProducto> stockReponer = new ArrayList<>();
-        for(StockProducto stock : stocks) {
-            if(stock.necesitaReposicion()) {
+        for (StockProducto stock : stocks) {
+            if (stock.necesitaReposicion()) {
                 stockReponer.add(stock);
             }
         }
 
         return stockReponer;
     }
-
 
 }

@@ -8,7 +8,7 @@ public class StockProducto {
     private String idStock;
     private int cantidad;
     private int ventas;
-    //private Date fechaEstimadaAgota; ES CALCULADO
+    private Date fechaCaducidad;
     private Date fechaReferenciaConsumo;
     private Producto producto;
     private MaquinaExpendedora maquina;
@@ -19,16 +19,17 @@ public class StockProducto {
         this.fechaReferenciaConsumo = new Date();
     }
 
-    public StockProducto(Producto producto, MaquinaExpendedora maquina, int cantidad) {
+    public StockProducto(Producto producto, MaquinaExpendedora maquina, int cantidad, Date fechaCaducidad) {
         this.idStock = "STOCK-" + UUID.randomUUID().toString().substring(0, 8);
         this.producto = producto;
         this.maquina = maquina;
         this.cantidad = cantidad;
+        this.fechaCaducidad = fechaCaducidad;
         this.ventas = 0;
         this.fechaReferenciaConsumo = new Date();
     }
 
-    //GETTERS
+    // GETTERS
     public String getIdStock() {
         return idStock;
     }
@@ -53,7 +54,11 @@ public class StockProducto {
         return maquina;
     }
 
-    //SETTERS
+    public Date getFechaCaducidad() {
+        return fechaCaducidad;
+    }
+
+    // SETTERS
 
     public void setIdStock(String idStock) {
         this.idStock = idStock;
@@ -67,7 +72,8 @@ public class StockProducto {
         this.ventas = ventas;
     }
 
-    //Para fijar la fecha de referencia, ya que por defecto será la fecha inicial en la que se añade el stock, pero se puede querer recalcular
+    // Para fijar la fecha de referencia, ya que por defecto será la fecha inicial
+    // en la que se añade el stock, pero se puede querer recalcular
     public void setFechaReferenciaConsumo(Date fechaReposicion) {
         this.fechaReferenciaConsumo = fechaReposicion;
     }
@@ -80,6 +86,10 @@ public class StockProducto {
         this.maquina = maquina;
     }
 
+    public void setFechaCaducidad(Date fechaCaducidad) {
+        this.fechaCaducidad = fechaCaducidad;
+    }
+
     @Override
     public String toString() {
         return "Stock[" + idStock + "] prod: " + producto + ", cant: " + cantidad + ", consumo: " + getConsumoDiario();
@@ -87,31 +97,35 @@ public class StockProducto {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if(obj instanceof StockProducto) {
+        if (this == obj)
+            return true;
+        if (obj instanceof StockProducto) {
             StockProducto producto = (StockProducto) obj;
             return this.idStock.equals(producto.idStock);
         }
         return false;
     }
 
-    //Calcula consumo diario desde la fecha de referencia para cálculo
+    // Calcula consumo diario desde la fecha de referencia para cálculo
     public float getConsumoDiario() {
         long diff = new Date().getTime() - fechaReferenciaConsumo.getTime();
-        long dias = diff / (1000*60*60*24);   //Calcula diferencia en dias
-        if (dias < 1) dias = 1;
+        long dias = diff / (1000 * 60 * 60 * 24); // Calcula diferencia en dias
+        if (dias < 1)
+            dias = 1;
         return (float) ventas / dias;
     }
 
     public Date getFechaEstimadaAgota() {
-        if (ventas <= 0 || cantidad <= 0) return null;
+        if (ventas <= 0 || cantidad <= 0)
+            return null;
         float consumo = getConsumoDiario();
-        if (consumo <= 0) return null;
+        if (consumo <= 0)
+            return null;
 
-        //Calculamos días que faltan para que se acabe
-        int diasAgotar = (int) (cantidad/consumo);
+        // Calculamos días que faltan para que se acabe
+        int diasAgotar = (int) (cantidad / consumo);
 
-        //Usamos clase calendar para meterle la fecha actual y que le sume los días
+        // Usamos clase calendar para meterle la fecha actual y que le sume los días
         Calendar calendario = Calendar.getInstance();
         calendario.setTime(new Date());
         calendario.add(Calendar.DAY_OF_YEAR, diasAgotar);
@@ -120,11 +134,19 @@ public class StockProducto {
     }
 
     public boolean necesitaReposicion() {
-        //To do, hay que decidir cuando necesita reposicion
-        //Osea cual es la condicion, yo q se si faltan 10 dias para q se acabe o algo asi
-        //Quien lo haga q decida
+        return cantidad < 5 || caducaEnCincoDiasOMenos();
+    }
 
-        return true;
+    private boolean caducaEnCincoDiasOMenos() {
+        if (fechaCaducidad == null) {
+            return false;
+        }
+
+        Calendar limite = Calendar.getInstance();
+        limite.setTime(new Date());
+        limite.add(Calendar.DAY_OF_YEAR, 5);
+
+        return !fechaCaducidad.after(limite.getTime());
     }
 
     public void registrarVenta() {
@@ -132,9 +154,8 @@ public class StockProducto {
             this.cantidad--;
             this.ventas++;
         } else {
-            //to do
+            //return null; //Podríamos meter una Illegal Exception?
         }
     }
-
 
 }
