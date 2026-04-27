@@ -1,8 +1,9 @@
-package com.negocio.predicciones_alertas;
+package com.sistema.negocio.predicciones_alertas;
+
+import java.util.List;
 
 import com.sistema.datos.StockDAO;
 import com.sistema.modelo.entidades.StockProducto;
-import java.util.List;
 
 public class GeneradorAlertas {
 

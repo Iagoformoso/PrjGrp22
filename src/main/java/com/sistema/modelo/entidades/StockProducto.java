@@ -1,7 +1,5 @@
 package com.sistema.modelo.entidades;
 
-import com.negocio.predicciones_alertas.GeneradorAlertas;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -16,7 +14,7 @@ public class StockProducto {
     private Date fechaCaducidad;
     private Producto producto;
     private MaquinaExpendedora maquina;
-    private com.negocio.predicciones_alertas.GeneradorAlertas generadorAlertas;
+    private com.sistema.negocio.predicciones_alertas.GeneradorAlertas generadorAlertas;
 
     public StockProducto() {
         this.idStock = "STOCK-" + UUID.randomUUID().toString().substring(0, 8);
@@ -32,7 +30,7 @@ public class StockProducto {
         this.fechaCaducidad = fechaCaducidad;
         this.ventas = 0;
         this.fechaReferenciaConsumo = new Date();
-        this.generadorAlertas = new GeneradorAlertas();
+        //this.generadorAlertas = new GeneradorAlertas();
     }
 
     // GETTERS

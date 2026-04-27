@@ -1,13 +1,13 @@
-package com.negocio.predicciones_alertas;
+package com.sistema.negocio.predicciones_alertas;
+
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.sistema.datos.VentaDAO;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.Producto;
 import com.sistema.modelo.entidades.Venta;
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class Predicciones {
 
