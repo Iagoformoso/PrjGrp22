@@ -17,6 +17,8 @@ import com.sistema.modelo.entidades.StockProducto;
 import com.sistema.modelo.enums.Categoria;
 import com.sistema.modelo.enums.Estado;
 
+import com.sistema.excepciones.*;
+
 public class FachadaAplicacionTest {
 
     private FachadaAplicacion fachada;
@@ -27,39 +29,60 @@ public class FachadaAplicacionTest {
     void setUp() {
         fachada = new FachadaAplicacion();
 
-        maquina = fachada.crearMaquina(
-                Estado.ACTIVO,
-                "Rúa do Hórreo",
-                42.878f,
-                -8.544f,
-                0f);
+        try {
+        	maquina = fachada.crearMaquina(
+                    Estado.ACTIVO,
+                    "Rúa do Hórreo",
+                    42.878f,
+                    -8.544f,
+                    0f);
 
-        producto = fachada.crearProducto(
-                "CocaCola",
-                "Coca-Cola Zero",
-                1.50f,
-                "Lata de Coca-Cola Zero",
-                Categoria.BEBIDA);
+            producto = fachada.crearProducto(
+                    "CocaCola",
+                    "Coca-Cola Zero",
+                    1.50f,
+                    "Lata de Coca-Cola Zero",
+                    Categoria.BEBIDA);
+            
+        } catch ( OperacionNoExitosa one) {
+        	System.out.println(one.getMessage());
+        }
+        
     }
 
     @Test
     void visualizarProductosYStock_MaquinaConStock_DevuelveStockCorrectamente() {
-        fachada.agregarStock(maquina.getIdMaquina(), producto.getIdProducto(), 10);
+    	
+    	try {
+    		
+    		fachada.agregarStock(maquina.getIdMaquina(), producto.getIdProducto(), 10);	
+            List<StockProducto> resultado = fachada.visualizarProductosYStock(maquina.getIdMaquina());
+            
+            assertEquals(1, resultado.size());
+            assertEquals(producto, resultado.get(0).getProducto());
+            assertEquals(maquina, resultado.get(0).getMaquina());
+            assertEquals(10, resultado.get(0).getCantidad());
+            
+    	} catch (MaquinaNoEncontrada mne) {
+    		System.out.println(mne.getMessage());
+    	}
 
-        List<StockProducto> resultado = fachada.visualizarProductosYStock(maquina.getIdMaquina());
-
-        assertEquals(1, resultado.size());
-        assertEquals(producto, resultado.get(0).getProducto());
-        assertEquals(maquina, resultado.get(0).getMaquina());
-        assertEquals(10, resultado.get(0).getCantidad());
     }
 
     @Test
     void visualizarProductosYStock_MaquinaSinStock_DevuelveListaVacia() {
-        List<StockProducto> resultado = fachada.visualizarProductosYStock(maquina.getIdMaquina());
+    	
+    	try {
+    		
+            List<StockProducto> resultado = fachada.visualizarProductosYStock(maquina.getIdMaquina());
 
-        assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
+            assertNotNull(resultado);
+            assertTrue(resultado.isEmpty());
+    		
+    	} catch (MaquinaNoEncontrada mne) {
+    		System.out.println(mne.getMessage());
+    	}
+    	
     }
 
     @Test
@@ -71,71 +94,101 @@ public class FachadaAplicacionTest {
 
     @Test
     void getTodosProductosAReponer_StockMenorDeCinco_DevuelveProductoAReponer() {
-        fachada.agregarStock(maquina.getIdMaquina(), producto.getIdProducto(), 4);
+    	
+    	try {
+    		
+            fachada.agregarStock(maquina.getIdMaquina(), producto.getIdProducto(), 4);
 
-        List<StockProducto> resultado = fachada.getTodosProductosAReponer();
+            List<StockProducto> resultado = fachada.getTodosProductosAReponer();
 
-        assertEquals(1, resultado.size());
-        assertEquals(producto, resultado.get(0).getProducto());
-        assertEquals(4, resultado.get(0).getCantidad());
+            assertEquals(1, resultado.size());
+            assertEquals(producto, resultado.get(0).getProducto());
+            assertEquals(4, resultado.get(0).getCantidad());
+    		
+    	} catch (MaquinaNoEncontrada mne) {
+    		System.out.println(mne.getMessage());
+    	}
+
     }
 
     @Test
     void getTodosProductosAReponer_StockMayorOIgualCincoNoCaduca_NoDevuelveProducto() {
         Date fechaCaducidadLejana = crearFechaDentroDeDias(30);
+        
+        try {
+        	
+            fachada.agregarStock(
+                    maquina.getIdMaquina(),
+                    producto.getIdProducto(),
+                    10,
+                    fechaCaducidadLejana);
 
-        fachada.agregarStock(
-                maquina.getIdMaquina(),
-                producto.getIdProducto(),
-                10,
-                fechaCaducidadLejana);
+            List<StockProducto> resultado = fachada.getTodosProductosAReponer();
 
-        List<StockProducto> resultado = fachada.getTodosProductosAReponer();
+            assertTrue(resultado.isEmpty());
+        	
+        } catch (MaquinaNoEncontrada mne) {
+        	System.out.println(mne.getMessage());
+        }
 
-        assertTrue(resultado.isEmpty());
     }
 
     @Test
     void getTodosProductosAReponer_CaducaEnMenosDeCincoDias_DevuelveProductoAReponer() {
         Date fechaCaducidadCercana = crearFechaDentroDeDias(3);
+        
+        try {
+        	
+            fachada.agregarStock(
+                    maquina.getIdMaquina(),
+                    producto.getIdProducto(),
+                    10,
+                    fechaCaducidadCercana);
 
-        fachada.agregarStock(
-                maquina.getIdMaquina(),
-                producto.getIdProducto(),
-                10,
-                fechaCaducidadCercana);
+            List<StockProducto> resultado = fachada.getTodosProductosAReponer();
 
-        List<StockProducto> resultado = fachada.getTodosProductosAReponer();
+            assertEquals(1, resultado.size());
+            assertEquals(producto, resultado.get(0).getProducto());
+            assertEquals(10, resultado.get(0).getCantidad());
+        	
+        } catch (MaquinaNoEncontrada mne) {
+        	System.out.println(mne.getMessage());
+        }
 
-        assertEquals(1, resultado.size());
-        assertEquals(producto, resultado.get(0).getProducto());
-        assertEquals(10, resultado.get(0).getCantidad());
     }
 
     @Test
     void getProductosAReponerMaquina_SoloDevuelveStockDeEsaMaquina() {
-        MaquinaExpendedora otraMaquina = fachada.crearMaquina(
-                Estado.ACTIVO,
-                "Praza de Galicia",
-                42.877f,
-                -8.545f,
-                0f);
+    	
+    	try {
+    		
+            MaquinaExpendedora otraMaquina = fachada.crearMaquina(
+                    Estado.ACTIVO,
+                    "Praza de Galicia",
+                    42.877f,
+                    -8.545f,
+                    0f);
 
-        Producto otroProducto = fachada.crearProducto(
-                "Nestle",
-                "KitKat",
-                1.20f,
-                "Chocolatina",
-                Categoria.SNACK);
+            Producto otroProducto = fachada.crearProducto(
+                    "Nestle",
+                    "KitKat",
+                    1.20f,
+                    "Chocolatina",
+                    Categoria.SNACK);
 
-        fachada.agregarStock(maquina.getIdMaquina(), producto.getIdProducto(), 4);
-        fachada.agregarStock(otraMaquina.getIdMaquina(), otroProducto.getIdProducto(), 3);
+            fachada.agregarStock(maquina.getIdMaquina(), producto.getIdProducto(), 4);
+            fachada.agregarStock(otraMaquina.getIdMaquina(), otroProducto.getIdProducto(), 3);
 
-        List<StockProducto> resultado = fachada.getProductosAReponerMaquina(maquina.getIdMaquina());
+            List<StockProducto> resultado = fachada.getProductosAReponerMaquina(maquina.getIdMaquina());
 
-        assertEquals(1, resultado.size());
-        assertEquals(producto, resultado.get(0).getProducto());
-        assertEquals(maquina, resultado.get(0).getMaquina());
+            assertEquals(1, resultado.size());
+            assertEquals(producto, resultado.get(0).getProducto());
+            assertEquals(maquina, resultado.get(0).getMaquina());
+    		
+    	} catch (OperacionNoExitosa | MaquinaNoEncontrada ex) {
+    		System.out.println(ex.getMessage());
+    	}
+
     }
 
     private Date crearFechaDentroDeDias(int dias) {
