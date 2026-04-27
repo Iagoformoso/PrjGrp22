@@ -13,7 +13,7 @@ public class StockProducto {
     private boolean necesitaReposicion = false;
     //private Date fechaEstimadaAgota; ES CALCULADO
     private Date fechaReferenciaConsumo;
-    private Date fechaCaducidad
+    private Date fechaCaducidad;
     private Producto producto;
     private MaquinaExpendedora maquina;
     private com.negocio.predicciones_alertas.GeneradorAlertas generadorAlertas;
