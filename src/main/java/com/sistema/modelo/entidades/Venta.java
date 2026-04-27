@@ -59,6 +59,10 @@ public class Venta {
         this.maquinaExpendedora = maquina;
     }
 
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public String toString() {
         return "Venta[" + idVenta + "] prod: " + producto + ", maq: " + maquinaExpendedora + ", pago: " + metodoPago + " fecha: " + timestamp;
