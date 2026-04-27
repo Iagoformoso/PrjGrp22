@@ -39,8 +39,7 @@ public class FachadaAplicacion {
     // Gestión de Máquinas
 
     // De momento lanza excepción, a menos que se cambie o tipo de función por "void"
-    public MaquinaExpendedora crearMaquina(Estado estado, String direccion, float latitud, float longitud,
-            float altitud) throws OperacionNoExitosa {
+    public MaquinaExpendedora crearMaquina(Estado estado, String direccion, float latitud, float longitud, float altitud) throws OperacionNoExitosa {
         PosicionGPS gps = new PosicionGPS(latitud, longitud, altitud);
         MaquinaExpendedora maquina = new MaquinaExpendedora(estado, direccion, gps);
         maquinaDAO.addMaquinaExpendedora(maquina);

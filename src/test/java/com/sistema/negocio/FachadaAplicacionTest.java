@@ -274,7 +274,6 @@ public class FachadaAplicacionTest {
                                 maquina.getPosicionGPS().getLongitud(),
                                 maquina.getPosicionGPS().getAltitud());
                 
-                System.out.println("Maquina buscada");
 
                 // Se comprueba que sea la misma
                 assertNotNull(encontrada);

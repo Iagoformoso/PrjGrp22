@@ -19,7 +19,6 @@ public class MaquinaDAO {
     		throw new OperacionNoExitosa("Ya existe una máquina expendedora con el mismo identificador.");
     	} catch (MaquinaNoEncontrada one) {
     		// Si salta una excepcion, ergo, no hay una máquina con el mismo id, se introduce
-    		System.out.println("Maquina añadida");
     		maquinas.add(maquina);
     	}
     }
