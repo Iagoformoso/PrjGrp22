@@ -7,6 +7,7 @@ import com.sistema.datos.MaquinaDAO;
 import com.sistema.datos.ProductoDAO;
 import com.sistema.datos.StockDAO;
 import com.sistema.datos.VentaDAO;
+import com.sistema.excepciones.*;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.PosicionGPS;
 import com.sistema.modelo.entidades.Producto;
@@ -29,22 +30,51 @@ public class FachadaAplicacion {
         this.ventaDAO = new VentaDAO();
     }
 
-    // Maquinas
+    // Gestión de Máquinas
 
+    // De momento lanza excepción, a menos que se cambie o tipo de función por "void"
     public MaquinaExpendedora crearMaquina(Estado estado, String direccion, float latitud, float longitud,
-            float altitud) {
+            float altitud) throws OperacionNoExitosa {
         PosicionGPS gps = new PosicionGPS(latitud, longitud, altitud);
         MaquinaExpendedora maquina = new MaquinaExpendedora(estado, direccion, gps);
         maquinaDAO.addMaquinaExpendedora(maquina);
         return maquina;
+
     }
 
     public List<MaquinaExpendedora> listarMaquinas() {
         return maquinaDAO.getAllMaquinas();
     }
 
-    public MaquinaExpendedora buscarMaquina(String id) {
+    // Método "buscarMaquina" sobrecargado con varias opciones de argumentos de entrada
+    
+    // De momento, lanza excepción
+    public MaquinaExpendedora buscarMaquina(String id) throws MaquinaNoEncontrada {
         return maquinaDAO.getMaquinaPorId(id);
+    }
+    
+    // De momento, lanza excepción
+    public MaquinaExpendedora buscarMaquina(float latitud, float longitud, float altitud) throws MaquinaNoEncontrada {
+    	PosicionGPS gps = new PosicionGPS(latitud,longitud,altitud);
+    	return maquinaDAO.getMaquinaGPS(gps);
+    }
+    
+    public void modificarMaquina(MaquinaExpendedora maquina) {
+    	try {
+        	maquinaDAO.modifyMaquina(maquina);
+    		
+    	} catch (MaquinaNoEncontrada mne) {
+    		System.out.println(mne.getMessage());
+    	}
+    }
+    
+    public void eliminarMaquina(String id) {
+    	try {
+    		maquinaDAO.deleteMaquinaExpendedora(id);
+    	}
+    	catch(MaquinaNoEncontrada mne) {
+    		System.out.println(mne.getMessage());
+    	}
     }
 
     // Productos
@@ -62,8 +92,10 @@ public class FachadaAplicacion {
     public Producto buscarProducto(String id) {
         return productoDAO.getProductoPorId(id);
     }
+    
+    // Método "agregarStock" sobrecargado
 
-    public StockProducto agregarStock(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad) {
+    public StockProducto agregarStock(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad) throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
         StockProducto stock = new StockProducto(producto, maquina, cantidad,fechaCaducidad);
@@ -71,11 +103,11 @@ public class FachadaAplicacion {
         return stock;
     }
 
-    public StockProducto agregarStock(String idMaquina, String idProducto, int cantidad) {
+    public StockProducto agregarStock(String idMaquina, String idProducto, int cantidad) throws MaquinaNoEncontrada {
         return agregarStock(idMaquina, idProducto, cantidad, null);
     }
 
-    public List<StockProducto> visualizarProductosYStock(String idMaquina) {
+    public List<StockProducto> visualizarProductosYStock(String idMaquina) throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
 
         if (maquina == null) {
@@ -85,7 +117,7 @@ public class FachadaAplicacion {
         return stockDAO.getStockMaquina(maquina);
     }
 
-    public List<StockProducto> getProductosAReponerMaquina(String idMaquina) {
+    public List<StockProducto> getProductosAReponerMaquina(String idMaquina) throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         return stockDAO.getStockAReponerMaquina(maquina);
     }
@@ -96,7 +128,7 @@ public class FachadaAplicacion {
 
     // Ventas
 
-    public Venta registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago) {
+    public Venta registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago) throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
 
@@ -108,7 +140,7 @@ public class FachadaAplicacion {
         return venta;
     }
 
-    public List<Venta> getVentasMaquina(String idMaquina) {
+    public List<Venta> getVentasMaquina(String idMaquina) throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         return ventaDAO.getVentasMaquina(maquina);
     }

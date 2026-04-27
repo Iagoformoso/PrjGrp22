@@ -39,3 +39,4 @@ dist/
 # --- SO files ---
 .DS_Store
 Thumbs.db
+.classpath
