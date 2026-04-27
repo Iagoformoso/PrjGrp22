@@ -19,7 +19,6 @@ public class US1_CargaMaquinasYLocalizacion_Test {
         private FachadaAplicacion fachada;
         private MaquinaExpendedora maquina;
 
-        // Enrique: Ídem rama HU4; los try-catch rompen los tests al pushear
         @BeforeEach
         void setUp() {
                 fachada = new FachadaAplicacion();
