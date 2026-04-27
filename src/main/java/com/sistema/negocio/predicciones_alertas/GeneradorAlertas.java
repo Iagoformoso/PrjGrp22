@@ -11,10 +11,11 @@ public class GeneradorAlertas {
     private final int margenPorDefecto = 5;
     private final int stockMinimo = 4;
 
-    public Alertas(StockDAO stockDAO, Predicciones predicciones) {
+    public GeneradorAlertas(StockDAO stockDAO, Predicciones predicciones) {
         this.stockDAO = stockDAO;
         this.predicciones = predicciones;
     }
+
 
     /**
      * Version sin argumentos: Comprueba la alerta con un margen por defecto
