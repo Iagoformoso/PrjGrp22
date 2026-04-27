@@ -1,12 +1,17 @@
 package com.sistema.modelo.entidades;
 
-import com.negocio.predicciones_alertas.GeneradorAlertas;
+import com.sistema.negocio.predicciones_alertas.GeneradorAlertas;
+import com.sistema.negocio.predicciones_alertas.Predicciones;
+import com.sistema.datos.VentaDAO;
+import com.sistema.datos.StockDAO;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
 public class StockProducto {
+    private VentaDAO ventaDAO;
+    private StockDAO stockDAO;
     private String idStock;
     private int cantidad;
     private int ventas;
@@ -16,7 +21,7 @@ public class StockProducto {
     private Date fechaCaducidad;
     private Producto producto;
     private MaquinaExpendedora maquina;
-    private com.negocio.predicciones_alertas.GeneradorAlertas generadorAlertas;
+    private GeneradorAlertas generadorAlertas;
 
     public StockProducto() {
         this.idStock = "STOCK-" + UUID.randomUUID().toString().substring(0, 8);
@@ -24,7 +29,7 @@ public class StockProducto {
         this.fechaReferenciaConsumo = new Date();
     }
 
-    public StockProducto(Producto producto, MaquinaExpendedora maquina, int cantidad, Date fechaCaducidad) {
+    public StockProducto(Producto producto, MaquinaExpendedora maquina, int cantidad, Date fechaCaducidad, VentaDAO ventaDAO, StockDAO stockDAO) {
         this.idStock = "STOCK-" + UUID.randomUUID().toString().substring(0, 8);
         this.producto = producto;
         this.maquina = maquina;
@@ -32,7 +37,9 @@ public class StockProducto {
         this.fechaCaducidad = fechaCaducidad;
         this.ventas = 0;
         this.fechaReferenciaConsumo = new Date();
-        this.generadorAlertas = new GeneradorAlertas();
+        this.generadorAlertas = new GeneradorAlertas(stockDAO, new Predicciones(ventaDAO));
+        this.ventaDAO = ventaDAO;
+        this.stockDAO = stockDAO;
     }
 
     // GETTERS

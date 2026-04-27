@@ -104,7 +104,7 @@ public class FachadaAplicacion {
     public StockProducto agregarStock(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad) throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
-        StockProducto stock = new StockProducto(producto, maquina, cantidad,fechaCaducidad);
+        StockProducto stock = new StockProducto(producto, maquina, cantidad,fechaCaducidad, ventaDAO, stockDAO);
         stockDAO.addStock(stock);
         return stock;
     }

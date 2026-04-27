@@ -1,7 +1,6 @@
-package com.sistema.negocio;
 
-import com.negocio.predicciones_alertas.GeneradorAlertas;
-import com.negocio.predicciones_alertas.Predicciones;
+import com.sistema.negocio.predicciones_alertas.GeneradorAlertas;
+import com.sistema.negocio.predicciones_alertas.Predicciones;
 import com.sistema.datos.StockDAO;
 import com.sistema.datos.VentaDAO;
 import com.sistema.modelo.entidades.*;

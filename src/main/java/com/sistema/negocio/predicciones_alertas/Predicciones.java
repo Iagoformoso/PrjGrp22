@@ -1,4 +1,4 @@
-package com.negocio.predicciones_alertas;
+package com.sistema.negocio.predicciones_alertas;
 
 import com.sistema.datos.VentaDAO;
 import com.sistema.modelo.entidades.MaquinaExpendedora;

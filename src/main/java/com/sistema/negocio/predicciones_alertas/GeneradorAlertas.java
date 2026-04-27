@@ -1,4 +1,4 @@
-package com.negocio.predicciones_alertas;
+package com.sistema.negocio.predicciones_alertas;
 
 import com.sistema.datos.StockDAO;
 import com.sistema.modelo.entidades.StockProducto;
@@ -10,6 +10,7 @@ public class GeneradorAlertas {
     private Predicciones predicciones;
     private final int margenPorDefecto = 5;
     private final int stockMinimo = 4;
+
 
     public GeneradorAlertas(StockDAO stockDAO, Predicciones predicciones) {
         this.stockDAO = stockDAO;

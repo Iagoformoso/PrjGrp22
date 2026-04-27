@@ -1,4 +1,3 @@
-package com.sistema.negocio;
 
 import java.util.Calendar;
 import java.util.Date;
