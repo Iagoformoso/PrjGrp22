@@ -14,7 +14,7 @@ public class MaquinaDAO {
     public void addMaquinaExpendedora(MaquinaExpendedora maquina) throws OperacionNoExitosa {
     	try {
     		// Se intenta recibir una máquina "duplicada" con el mismo id que la máquina a insertar
-    		MaquinaExpendedora duplicado = this.getMaquinaPorId(maquina.getIdMaquina());
+    		this.getMaquinaPorId(maquina.getIdMaquina());
     		// Si no se ha saltado a la sentencia catch, existe un duplicado, y lanzamos una excepción
     		throw new OperacionNoExitosa("Ya existe una máquina expendedora con el mismo identificador.");
     	} catch (MaquinaNoEncontrada one) {

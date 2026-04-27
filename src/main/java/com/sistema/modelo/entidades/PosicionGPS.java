@@ -1,7 +1,6 @@
 package com.sistema.modelo.entidades;
 
 import java.util.Date;
-import java.util.UUID;
 
 public class PosicionGPS {
     private float latitud;

@@ -1,7 +1,6 @@
 package com.sistema.datos;
 
 import com.sistema.modelo.entidades.Producto;
-import com.sistema.modelo.entidades.Venta;
 
 import java.util.ArrayList;
 import java.util.Iterator;

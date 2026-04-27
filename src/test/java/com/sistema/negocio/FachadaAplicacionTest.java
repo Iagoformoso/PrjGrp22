@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.junit.ExceptionFactory;
 
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.Producto;
@@ -253,8 +252,7 @@ public class FachadaAplicacionTest {
                 assertTrue(maquinas.contains(maquina));
                 assertTrue(maquinas.contains(segunda));
         }
-
-        // TODO: comprobar que funcionen con JUnit en cuanto esté mergeado el main
+        
         // Casos de uso 5 a 10todavía no pueden incluirse: falta mergear el main
         // HU1-CP4 - Buscar máquina por id inexistente: lanza excepción
 

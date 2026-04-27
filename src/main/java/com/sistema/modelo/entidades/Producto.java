@@ -2,7 +2,6 @@ package com.sistema.modelo.entidades;
 
 import com.sistema.modelo.enums.Categoria;
 
-import java.util.Date;
 import java.util.UUID;
 
 public class Producto {

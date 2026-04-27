@@ -1,11 +1,7 @@
 package com.sistema.modelo.entidades;
 
 import com.sistema.modelo.enums.Estado;
-import com.sistema.modelo.entidades.PosicionGPS;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 public class MaquinaExpendedora {
