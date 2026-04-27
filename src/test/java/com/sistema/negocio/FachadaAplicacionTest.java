@@ -88,8 +88,8 @@ public class FachadaAplicacionTest {
     @Test
     void visualizarProductosYStock_MaquinaInexistente_LanzaExcepcion() {
         assertThrows(
-                IllegalArgumentException.class,
-                () -> fachada.visualizarProductosYStock("MAQ-NO-EXISTE"));
+                MaquinaNoEncontrada.class,
+                () -> fachada.visualizarProductosYStock("No se ha encontrado ninguna máquina expendedora con ese identificador."));
     }
 
     @Test
