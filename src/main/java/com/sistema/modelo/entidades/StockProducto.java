@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
+import com.sistema.excepciones.NoStockException;
+
 public class StockProducto {
     private String idStock;
     private int cantidad;
@@ -157,17 +159,18 @@ public class StockProducto {
         return !fechaCaducidad.after(limite.getTime());
     }
 
-    public void registrarVenta() {
+    public void registrarVenta() throws NoStockException {
         if (cantidad > 0) {
             this.cantidad--;
             this.ventas++;
         } else {
             //return null; //Podríamos meter una Illegal Exception?
+            throw new NoStockException("No hay existencias disponibles");
         }
         // Al registrar una venta se evalua si se necesita una reposicion
-        if (generadorAlertas.generarAlertaStock() == true) {
-            necesitaReposicion = true;
-        }
+        // if (generadorAlertas.generarAlertaStock() == true) {
+            // necesitaReposicion = true;
+        // }
         // si necesitaReposicion es true y el generador devuelve false se queda como esta
         // poner a false necesitaReposicion se hace al completar una tarea de reposicion
         // o bien llamando al metodo setNecesitaReposicion
