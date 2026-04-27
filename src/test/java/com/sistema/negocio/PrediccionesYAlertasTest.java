@@ -1,6 +1,7 @@
 package com.sistema.negocio;
 
 import java.util.Calendar;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -169,6 +170,59 @@ public class PrediccionesYAlertasTest {
             field.set(v, cal.getTime());
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Test de Caja Blanca - Camino 1-2-5:
+     * El flujo entra en la funcion, la lista de ventas está vacia, 
+     * entonces el bucle for no se ejecuta y devuelve una lista vacia.
+     */
+    @Test
+    private void testGetVentasProducto_ListaVacia() {
+        // VentaDAO se inicia vacío por defecto en el setUp()
+        Producto productoABuscar = new Producto("Marca", "Nombre", 1.0f, "Desc", Categoria.BEBIDA);
+        List<Venta> resultado = ventaDAO.getVentasProducto(productoABuscar);
+        assertTrue(resultado.isEmpty(), "El resultado debería ser una lista vacía (Camino 1-2-5)");
+    }
+
+    /**
+     * Test de Caja Blanca - Camino 1-2-3-2-5:
+     * El flujo entra en el bucle (2), evalua la condicion (3) como falsa 
+     * (el producto no coincide) y vuelve al encabezado del bucle.
+     * Se repite 5 veces y sale.
+     */
+    @Test
+    private void testGetVentasProducto_SinCoincidencias() {
+        Producto productoBuscado = new Producto("Target", "Cola", 1.5f, "Refresco", Categoria.BEBIDA);
+        Producto productoDiferente = new Producto("Otro", "Agua", 1.0f, "Agua", Categoria.BEBIDA);
+        
+        // Anadimos 5 ventas de un producto que NO es el buscado
+        for (int i = 0; i < 5; i++) {
+            ventaDAO.addVenta(new Venta(MetodoPago.TARJETA, productoDiferente, maquinaA));
+        }
+        List<Venta> resultado = ventaDAO.getVentasProducto(productoBuscado);
+
+        assertEquals(0, resultado.size(), "No debería encontrar coincidencias tras recorrer la lista (Camino 1-2-3-2-5)");
+    }
+
+    /**
+     * Test de Caja Blanca - Camino 1-2-3-5 (o 1-2-3-4-2-5):
+     * El flujo entra en el bucle, la condición (3) es verdadera (coincidencia),
+     * ejecuta la adicion a la lista (4) y finalmente sale (5).
+     * El usuario lo define como ventas con 5 productos que si coinciden.
+     */
+    @Test
+    private void testGetVentasProducto_TodoCoincidencias() {
+        // Usamos el objeto 'refresco' ya creado en el setUp()
+        for (int i = 0; i < 5; i++) {
+            ventaDAO.addVenta(new Venta(MetodoPago.TARJETA, refresco, maquinaA));
+        }
+        List<Venta> resultado = ventaDAO.getVentasProducto(refresco);
+
+        assertEquals(5, resultado.size(), "Debería haber encontrado 5 coincidencias (Camino 1-2-3-5)");
+        for (Venta v : resultado) {
+            assertEquals(refresco, v.getProducto(), "El producto de la venta debe ser el solicitado");
         }
     }
 }
