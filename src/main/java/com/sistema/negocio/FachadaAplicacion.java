@@ -6,6 +6,7 @@ import com.sistema.datos.StockDAO;
 import com.sistema.datos.VentaDAO;
 import com.sistema.modelo.entidades.*;
 import com.sistema.modelo.enums.*;
+import com.sistema.excepciones.MaquinaNoEncontrada;
 
 import java.util.Date;
 import java.util.List;
