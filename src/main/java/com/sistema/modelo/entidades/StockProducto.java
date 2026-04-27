@@ -1,6 +1,6 @@
 package com.sistema.modelo.entidades;
 
-import com.negocio.GeneradorAlertas;
+import com.negocio.predicciones_alertas.GeneradorAlertas;
 
 import java.util.Calendar;
 import java.util.Date;
