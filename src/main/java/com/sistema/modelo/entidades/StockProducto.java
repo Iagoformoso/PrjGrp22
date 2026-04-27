@@ -1,5 +1,7 @@
 package com.sistema.modelo.entidades;
 
+import com.negocio.GeneradorAlertas;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -8,10 +10,12 @@ public class StockProducto {
     private String idStock;
     private int cantidad;
     private int ventas;
+    private boolean necesitaReposicion = false;
     //private Date fechaEstimadaAgota; ES CALCULADO
     private Date fechaReferenciaConsumo;
     private Producto producto;
     private MaquinaExpendedora maquina;
+    private com.negocio.predicciones_alertas.GeneradorAlertas generadorAlertas;
 
     public StockProducto() {
         this.idStock = "STOCK-" + UUID.randomUUID().toString().substring(0, 8);
@@ -26,6 +30,7 @@ public class StockProducto {
         this.cantidad = cantidad;
         this.ventas = 0;
         this.fechaReferenciaConsumo = new Date();
+        this.generadorAlertas = new GeneradorAlertas();
     }
 
     //GETTERS
@@ -78,6 +83,10 @@ public class StockProducto {
 
     public void setMaquina(MaquinaExpendedora maquina) {
         this.maquina = maquina;
+    }
+
+    public void setNecesitaReposicion(Boolean necesitaReposicion) {
+        this.necesitaReposicion = necesitaReposicion;
     }
 
     @Override
@@ -134,6 +143,13 @@ public class StockProducto {
         } else {
             //to do
         }
+        // Al registrar una venta se evalua si se necesita una reposicion
+        if (generadorAlertas.generarAlertaStock() == true) {
+            necesitaReposicion = true;
+        }
+        // si necesitaReposicion es true y el generador devuelve false se queda como esta
+        // poner a false necesitaReposicion se hace al completar una tarea de reposicion
+        // o bien llamando al metodo setNecesitaReposicion
     }
 
 
