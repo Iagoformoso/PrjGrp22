@@ -36,6 +36,9 @@ dist/
 *.war
 *.ear
 
+# --- Classpath ---
+*.classpath
+
 # --- SO files ---
 .DS_Store
 Thumbs.db
