@@ -107,13 +107,16 @@ public class StockProducto {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj instanceof StockProducto) {
-            StockProducto producto = (StockProducto) obj;
-            return this.idStock.equals(producto.idStock);
-        }
-        return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+       StockProducto other = (StockProducto) obj;
+        return java.util.Objects.equals(idStock, other.idStock);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idStock);
     }
 
     // Calcula consumo diario desde la fecha de referencia para cálculo

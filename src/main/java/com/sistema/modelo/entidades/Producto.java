@@ -81,11 +81,15 @@ public class Producto {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj instanceof Producto) {
-            Producto producto = (Producto) obj;
-            return this.idProducto.equals(producto.getIdProducto());
-        }
-        return false;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Producto other = (Producto) obj;
+        return java.util.Objects.equals(idProducto, other.idProducto);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idProducto);
     }
 
 }

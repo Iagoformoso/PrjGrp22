@@ -37,8 +37,6 @@ public class PrediccionesYAlertasTest {
         ventaDAO = new VentaDAO();
         stockDAO = new StockDAO();
         predicciones = new Predicciones(ventaDAO);
-        // Nota: Asegúrate de corregir el nombre del constructor en
-        // GeneradorAlertas.java
         generadorAlertas = new GeneradorAlertas(stockDAO, predicciones);
 
         refresco = new Producto("Brand", "Cola", 1.5f, "Refresco", Categoria.BEBIDA);

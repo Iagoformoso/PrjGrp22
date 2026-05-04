@@ -62,11 +62,15 @@ public class MaquinaExpendedora {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj instanceof MaquinaExpendedora) {
-            MaquinaExpendedora maquina = (MaquinaExpendedora) obj;
-            return idMaquina.equals(maquina.idMaquina);
-        }
-        return false;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        MaquinaExpendedora other = (MaquinaExpendedora) obj;
+        return java.util.Objects.equals(idMaquina, other.idMaquina);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idMaquina);
     }
 
 }

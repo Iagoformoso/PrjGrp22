@@ -3,6 +3,7 @@ package com.sistema.datos;
 import com.sistema.excepciones.*;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.PosicionGPS;
+import com.sistema.modelo.enums.Estado;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,7 +12,7 @@ import java.util.List;
 public class MaquinaDAO {
     private List<MaquinaExpendedora> maquinas = new ArrayList<>();
 
-    public void addMaquinaExpendedora(MaquinaExpendedora maquina) throws OperacionNoExitosa {
+    public void addMaquina(MaquinaExpendedora maquina) throws OperacionNoExitosa {
     	try {
     		// Se intenta recibir una máquina "duplicada" con el mismo id que la máquina a insertar
     		this.getMaquinaPorId(maquina.getIdMaquina());
@@ -36,17 +37,8 @@ public class MaquinaDAO {
         }
         throw new MaquinaNoEncontrada("No se ha encontrado ninguna máquina expendedora con ese identificador.");
     }
-    
-    public MaquinaExpendedora getMaquinaGPS(PosicionGPS gps) throws MaquinaNoEncontrada {
-        for (MaquinaExpendedora maquina : maquinas) {
-            if(maquina.getPosicionGPS().equals(gps)) {
-                return maquina;
-            }
-        }
-        throw new MaquinaNoEncontrada("No se ha encontrado ninguna máquina expendedora con esa posición gps.");
-    }
 
-    public void deleteMaquinaExpendedora(String id) throws MaquinaNoEncontrada {
+    public void deleteMaquina(String id) throws MaquinaNoEncontrada {
         Iterator<MaquinaExpendedora> iterator = maquinas.iterator();
         while (iterator.hasNext()) {
             if(iterator.next().getIdMaquina().equals(id)) {
@@ -67,6 +59,45 @@ public class MaquinaDAO {
             }
         }
         throw new MaquinaNoEncontrada("No se ha encontrado la máquina expendedora para modificar.");
+    }
+
+    public MaquinaExpendedora getMaquinaGPS(PosicionGPS gps) throws MaquinaNoEncontrada {
+        for (MaquinaExpendedora maquina : maquinas) {
+            if(maquina.getPosicionGPS().equals(gps)) {
+                return maquina;
+            }
+        }
+        throw new MaquinaNoEncontrada("No se ha encontrado ninguna máquina expendedora con esa posición gps.");
+    }
+
+    public List<MaquinaExpendedora> getMaquinasDanadas() {
+        List<MaquinaExpendedora> maquinasDanadas = new ArrayList<>();
+        for (MaquinaExpendedora maquina : maquinas) {
+            if(maquina.getEstado().equals(Estado.FUERA_DE_SERVICIO)) {
+                maquinasDanadas.add(maquina);
+            }
+        }
+        return maquinasDanadas;
+    }
+
+    public List<MaquinaExpendedora> getMaquinasOperativas() {
+        List<MaquinaExpendedora> maquinasOperativas = new ArrayList<>();
+        for (MaquinaExpendedora maquina : maquinas) {
+            if(maquina.getEstado().equals(Estado.ACTIVO)) {
+                maquinasOperativas.add(maquina);
+            }
+        }
+        return maquinasOperativas;
+    }
+
+    public List<MaquinaExpendedora> getMaquinasMantenimiento() {
+        List<MaquinaExpendedora> maquinasMantenimiento = new ArrayList<>();
+        for (MaquinaExpendedora maquina : maquinas) {
+            if(maquina.getEstado().equals(Estado.MANTENIMIENTO)) {
+                maquinasMantenimiento.add(maquina);
+            }
+        }
+        return maquinasMantenimiento;
     }
 
 

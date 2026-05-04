@@ -1,8 +1,10 @@
 package com.sistema.modelo.entidades;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class PosicionGPS {
+    private String idGPS;
     private float latitud;
     private float longitud;
     private float altitud;
@@ -13,6 +15,7 @@ public class PosicionGPS {
     }
 
     public PosicionGPS(float latitud, float longitud, float altitud) {
+        this.idGPS = "GPS-" + UUID.randomUUID().toString().substring(0, 8);
         this.latitud = latitud;
         this.longitud = longitud;
         this.altitud = altitud;
@@ -21,6 +24,7 @@ public class PosicionGPS {
 
     //GETTERS
 
+    public String getIdGPS() { return idGPS; }
     public float getLatitud() {
         return latitud;
     }
@@ -53,19 +57,21 @@ public class PosicionGPS {
 
     @Override
     public String toString() {
-        return "lat: " + latitud + ", long: " + longitud + ", al: " + altitud + "]";
+        return "GPS[" + idGPS + "] lat: " + latitud + ", long: " + longitud + ", al: " + altitud + "]";
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj instanceof PosicionGPS) {
-            PosicionGPS p = (PosicionGPS) obj;
-            return Float.compare(this.latitud, p.latitud) == 0
-                && Float.compare(this.longitud, p.longitud) == 0
-                && Float.compare(this.altitud, p.altitud) == 0;
-        }
-        return false;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        PosicionGPS other = (PosicionGPS) obj;
+        return java.util.Objects.equals(idGPS, other.idGPS);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idGPS);
     }
 
 }

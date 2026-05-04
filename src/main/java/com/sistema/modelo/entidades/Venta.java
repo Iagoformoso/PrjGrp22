@@ -70,10 +70,14 @@ public class Venta {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj instanceof Venta) {
-            Venta venta = (Venta) obj;
-            return this.idVenta.equals(venta.idVenta);
-        }
-        return false;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Venta other = (Venta) obj;
+        return java.util.Objects.equals(idVenta, other.idVenta);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idVenta);
     }
 }

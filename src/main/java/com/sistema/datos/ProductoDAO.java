@@ -47,4 +47,14 @@ public class ProductoDAO {
         }
     }
 
+    public List<Producto> getProductosMarca(String marca){
+        List<Producto> productosMarca = new ArrayList<>();
+        for(Producto producto: productos) {
+            if(producto.getMarca().equals(marca)) {
+                productosMarca.add(producto);
+            }
+        }
+        return productosMarca;
+    }
+
 }

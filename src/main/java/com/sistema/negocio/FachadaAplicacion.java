@@ -38,7 +38,7 @@ public class FachadaAplicacion {
             float altitud) throws OperacionNoExitosa {
         PosicionGPS gps = new PosicionGPS(latitud, longitud, altitud);
         MaquinaExpendedora maquina = new MaquinaExpendedora(estado, direccion, gps);
-        maquinaDAO.addMaquinaExpendedora(maquina);
+        maquinaDAO.addMaquina(maquina);
         return maquina;
 
     }
@@ -56,8 +56,7 @@ public class FachadaAplicacion {
     }
 
     // De momento, lanza excepción
-    public MaquinaExpendedora buscarMaquina(float latitud, float longitud, float altitud) throws MaquinaNoEncontrada {
-        PosicionGPS gps = new PosicionGPS(latitud, longitud, altitud);
+    public MaquinaExpendedora buscarMaquina(PosicionGPS gps) throws MaquinaNoEncontrada {
         return maquinaDAO.getMaquinaGPS(gps);
     }
 
@@ -66,7 +65,7 @@ public class FachadaAplicacion {
     }
 
     public void eliminarMaquina(String id) throws MaquinaNoEncontrada {
-        maquinaDAO.deleteMaquinaExpendedora(id);
+        maquinaDAO.deleteMaquina(id);
     }
 
     // Productos
