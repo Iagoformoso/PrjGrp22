@@ -119,6 +119,15 @@ public class StockProducto {
         return java.util.Objects.hash(idStock);
     }
 
+    /*@Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof StockProducto)) return false;
+        StockProducto other = (StockProducto) obj;
+        return this.maquina.equals(other.getMaquina()) && 
+            this.producto.equals(other.getProducto());
+    }*/
+
     // Calcula consumo diario desde la fecha de referencia para cálculo
     public float getConsumoDiario() {
         long diff = new Date().getTime() - fechaReferenciaConsumo.getTime();

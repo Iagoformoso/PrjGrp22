@@ -97,6 +97,23 @@ public class FachadaAplicacion {
         agregarStock(idMaquina, idProducto, cantidad, null);
     }
 
+     // Permite al administrador establecer la cantidad exacta de un producto en una máquina.
+    public void establecerStockManual(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad) throws MaquinaNoEncontrada, OperacionNoExitosa {
+        MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
+        if (maquina == null) throw new MaquinaNoEncontrada("La máquina " + idMaquina + " no existe.");
+        Producto producto = productoDAO.getProductoPorId(idProducto);
+        if (producto == null) throw new OperacionNoExitosa("El producto " + idProducto + " no existe.");
+        StockProducto stockExistente = stockDAO.getStockProductoMaquina(maquina, producto);
+        if (stockExistente != null) {
+            stockExistente.setCantidad(cantidad);
+            stockExistente.setFechaCaducidad(fechaCaducidad);
+            stockDAO.modifyStock(stockExistente);
+        } else {
+            StockProducto nuevoStock = new StockProducto(producto, maquina, cantidad, fechaCaducidad);
+            stockDAO.addStock(nuevoStock);
+        }
+    }
+
     public List<StockProducto> visualizarProductosYStock(String idMaquina) throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
 
@@ -138,4 +155,5 @@ public class FachadaAplicacion {
         Producto producto = productoDAO.getProductoPorId(idProducto);
         return ventaDAO.getVentasProducto(producto);
     }
+
 }

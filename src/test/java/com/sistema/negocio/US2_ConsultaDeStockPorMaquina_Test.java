@@ -515,4 +515,59 @@ public class US2_ConsultaDeStockPorMaquina_Test {
 
                 assertFalse(stock.necesitaReposicion());
         }
+
+        @Test
+        void establecerStockManual_MaquinaInexistente_LanzaExcepcion() {
+                // Preparacion: Una ID que no existe
+                String idFalsa = "MAQ-999";
+                
+                // Ejecucion y Verificacion
+                assertThrows(MaquinaNoEncontrada.class, () -> {
+                fachada.establecerStockManual(idFalsa, producto.getIdProducto(), 10, null);
+                });
+        }
+
+        @Test
+        void establecerStockManual_ProductoNuevoEnMaquina_CreaElRegistroCorrectamente() throws MaquinaNoEncontrada, OperacionNoExitosa {
+                // Escenario: La maquina esta vacia. El administrador establece 20 unidades.
+                int cantidadInicial = 20;
+                
+                fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), cantidadInicial, null);
+                
+                // Verificación: Consultamos el stock y comprobamos que se ha creado
+                List<StockProducto> lista = fachada.visualizarProductosYStock(maquina.getIdMaquina());
+                assertEquals(1, lista.size(), "Debería haberse creado un registro de stock");
+                assertEquals(cantidadInicial, lista.get(0).getCantidad(), "La cantidad debe coincidir con la establecida");
+        }
+
+        @Test
+        void establecerStockManual_ProductoYaExistente_ActualizaLaCantidadExistente() throws MaquinaNoEncontrada, OperacionNoExitosa {
+                // Escenario: El sistema cree que hay 10 unidades (por un proceso previo), 
+                // pero el administrador cuenta fisicamente 5 y lo corrige manualmente.
+                
+                // Anadimos stock inicial
+                fachada.agregarStock(maquina.getIdMaquina(), producto.getIdProducto(), 10);
+                
+                // El administrador establece manualmente el estado real (5 unidades)
+                int cantidadReal = 5;
+                fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), cantidadReal, null);
+                
+                // Verificacion: No debe haber dos registros, debe haber uno solo actualizado
+                List<StockProducto> lista = fachada.visualizarProductosYStock(maquina.getIdMaquina());
+                assertEquals(1, lista.size(), "No deben duplicarse los registros de stock");
+                assertEquals(cantidadReal, lista.get(0).getCantidad(), "El stock debe haberse actualizado al valor real");
+        }
+
+        @Test
+        void establecerStockManual_ActualizaFechaCaducidadCorrectamente() throws MaquinaNoEncontrada, OperacionNoExitosa {
+                // Escenario: Se actualiza el stock y tambien se cambia la fecha de caducidad.
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.MONTH, 1);
+                Date nuevaFecha = cal.getTime();
+
+                fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), 15, nuevaFecha);
+
+                StockProducto stock = fachada.visualizarProductosYStock(maquina.getIdMaquina()).get(0);
+                assertEquals(nuevaFecha, stock.getFechaCaducidad(), "La fecha de caducidad debe haberse actualizado");
+        }
 }
