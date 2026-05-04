@@ -176,7 +176,7 @@ public class US5_IdentificacionDeProductosParaReposicion_Test {
      * entonces el bucle for no se ejecuta y devuelve una lista vacia.
      */
     @Test
-    private void testGetVentasProducto_ListaVacia() {
+    void testGetVentasProducto_ListaVacia() {
         // VentaDAO se inicia vacío por defecto en el setUp()
         Producto productoABuscar = new Producto("Marca", "Nombre", 1.0f, "Desc", Categoria.BEBIDA);
         List<Venta> resultado = ventaDAO.getVentasProducto(productoABuscar);
@@ -190,7 +190,7 @@ public class US5_IdentificacionDeProductosParaReposicion_Test {
      * Se repite 5 veces y sale.
      */
     @Test
-    private void testGetVentasProducto_SinCoincidencias() {
+    void testGetVentasProducto_SinCoincidencias() {
         Producto productoBuscado = new Producto("Target", "Cola", 1.5f, "Refresco", Categoria.BEBIDA);
         Producto productoDiferente = new Producto("Otro", "Agua", 1.0f, "Agua", Categoria.BEBIDA);
         
@@ -210,7 +210,7 @@ public class US5_IdentificacionDeProductosParaReposicion_Test {
      * El usuario lo define como ventas con 5 productos que si coinciden.
      */
     @Test
-    private void testGetVentasProducto_TodoCoincidencias() {
+    void testGetVentasProducto_TodoCoincidencias() {
         // Usamos el objeto 'refresco' ya creado en el setUp()
         for (int i = 0; i < 5; i++) {
             ventaDAO.addVenta(new Venta(MetodoPago.TARJETA, refresco, maquinaA));
