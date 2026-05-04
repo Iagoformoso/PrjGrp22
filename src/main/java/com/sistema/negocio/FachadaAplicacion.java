@@ -6,30 +6,50 @@ import java.util.List;
 import com.sistema.datos.MaquinaDAO;
 import com.sistema.datos.ProductoDAO;
 import com.sistema.datos.StockDAO;
+import com.sistema.datos.UsuarioDAO;
 import com.sistema.datos.VentaDAO;
+import com.sistema.excepciones.AutenticacionFallida;
+import com.sistema.excepciones.DatoNoEsperado;
 import com.sistema.excepciones.MaquinaNoEncontrada;
 import com.sistema.excepciones.NoStockException;
 import com.sistema.excepciones.OperacionNoExitosa;
+import com.sistema.excepciones.UsuarioNoEncontrado;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.PosicionGPS;
 import com.sistema.modelo.entidades.Producto;
 import com.sistema.modelo.entidades.StockProducto;
+import com.sistema.modelo.entidades.Usuario;
 import com.sistema.modelo.entidades.Venta;
 import com.sistema.modelo.enums.Categoria;
 import com.sistema.modelo.enums.Estado;
 import com.sistema.modelo.enums.MetodoPago;
 
 public class FachadaAplicacion {
+    private Usuario usuarioActual;
+    private final UsuarioDAO usuarioDAO;
     private final MaquinaDAO maquinaDAO;
     private final ProductoDAO productoDAO;
     private final StockDAO stockDAO;
     private final VentaDAO ventaDAO;
 
     public FachadaAplicacion() {
+        this.usuarioActual = null;
+        this.usuarioDAO = new UsuarioDAO();
         this.maquinaDAO = new MaquinaDAO();
         this.productoDAO = new ProductoDAO();
         this.stockDAO = new StockDAO();
         this.ventaDAO = new VentaDAO();
+    }
+
+    // Gestión de Usuarios
+
+    public void iniciarSesion(String nombre, String contrasena) throws UsuarioNoEncontrado, AutenticacionFallida, DatoNoEsperado {
+        this.usuarioActual = usuarioDAO.iniciarSesion(nombre, contrasena)  ; // Rol no se maneja aquí
+    }
+
+    public void cerrarSesion() throws UsuarioNoEncontrado {
+        usuarioDAO.cerrarSesion(usuarioActual);
+        this.usuarioActual = null;
     }
 
     // Gestión de Máquinas

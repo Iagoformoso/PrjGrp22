@@ -14,7 +14,11 @@ import com.sistema.modelo.enums.Rol;
 
 public class UsuarioDAO {
 
-    private List<Usuario> usuariosConectados = new ArrayList<>();
+    private List<Usuario> usuariosConectados;
+
+    public UsuarioDAO() {
+        this.usuariosConectados = new ArrayList<>();
+    }
 
     public synchronized Usuario iniciarSesion(String nombre, String contrasena) throws UsuarioNoEncontrado, AutenticacionFallida, DatoNoEsperado {
         try (BufferedReader br = new BufferedReader(new FileReader("usuarios.txt"))) {
@@ -23,6 +27,13 @@ public class UsuarioDAO {
                 String[] partes = linea.split(";");
                 if (partes[0].equals(nombre)) {
                     if (partes[1].equals(contrasena)) {
+
+                        // Creamos un Usuario temporal con el nombre, y comprobamos si ya hay un usuario con ese nombre conectado
+                        if(usuariosConectados.contains(new Usuario(partes[0],null))){
+                            throw new AutenticacionFallida("Usuario ya conectado: " + nombre);
+                        }
+
+                        // Comprobamos el rol del usuario
                         Rol rol;
                         switch(partes[2]) {
                             case "ADMINISTRADOR":
@@ -38,20 +49,24 @@ public class UsuarioDAO {
                                 throw new DatoNoEsperado("Rol no reconocido para el usuario: " + nombre);
                         }
 
+                        // Creamos el usuario y lo añadimos a la lista de usuarios conectados
                         Usuario usuario = new Usuario(nombre, rol); // Rol no se maneja aquí
                         usuariosConectados.add(usuario);
 
+                        // Devolvemos el usuario creado
                         return usuario;
 
                     } else {
+                        // Contraseña incorrecta
                         throw new AutenticacionFallida("Contraseña incorrecta para el usuario: " + nombre);
                     }
                 }
             }
         } catch (IOException e) {
-            // 
+            // Error al leer el archivo
         }
 
+        // Usuario no encontrado
         throw new UsuarioNoEncontrado("Usuario no encontrado: " + nombre);
 
     }
