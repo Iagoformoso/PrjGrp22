@@ -8,7 +8,7 @@ import com.sistema.datos.ProductoDAO;
 import com.sistema.datos.StockDAO;
 import com.sistema.datos.VentaDAO;
 import com.sistema.excepciones.MaquinaNoEncontrada;
-import com.sistema.excepciones.NoStockException;
+import com.sistema.excepciones.StockNoEncontrado;
 import com.sistema.excepciones.OperacionNoExitosa;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.PosicionGPS;
@@ -137,18 +137,16 @@ public class FachadaAplicacion {
 
     // Ventas
 
-    public void registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago) throws MaquinaNoEncontrada {
+    public void registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago)
+            throws MaquinaNoEncontrada, StockNoEncontrado {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
-
         StockProducto stock = stockDAO.getStockProductoMaquina(maquina, producto);
-
         try {
             stock.registrarVenta();
             Venta venta = new Venta(metodoPago, producto, maquina);
             ventaDAO.addVenta(venta);
-        } catch (NoStockException e) {
-
+        } catch (StockNoEncontrado e) {
         }
     }
 
