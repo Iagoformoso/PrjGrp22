@@ -106,8 +106,8 @@ public class US5_IdentificacionDeProductosParaReposicion_Test {
 
         // La local deberia ser mayor que 0 (su propia venta) porque se "apoya" en la
         // global
-        assertTrue(predLocal > 0, "La predicción local debería verse influenciada por la tendencia global");
-        assertTrue(predLocal < predGlobal, "Pero no debería ser tan alta como la global pura");
+        assertEquals(1, Integer.compare(predLocal, 0), "La predicción local debería ser mayor que 0");
+        assertEquals(-1, Integer.compare(predLocal, predGlobal), "La predicción local debería ser menor que la predicción global");
     }
 
     /**
