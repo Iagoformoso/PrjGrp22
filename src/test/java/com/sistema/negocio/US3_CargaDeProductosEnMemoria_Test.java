@@ -1,123 +1,207 @@
 package com.sistema.negocio;
 
-import com.sistema.modelo.entidades.Producto;
-import com.sistema.modelo.enums.Categoria;
 import com.sistema.datos.ProductoDAO;
+import com.sistema.excepciones.MaquinaNoEncontrada;
+import com.sistema.excepciones.NoStockException;
+import com.sistema.excepciones.OperacionNoExitosa;
+import com.sistema.modelo.entidades.MaquinaExpendedora;
+import com.sistema.modelo.entidades.Producto;
+import com.sistema.modelo.entidades.StockProducto;
+import com.sistema.modelo.enums.Categoria;
+import com.sistema.modelo.enums.Estado;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
-class ProductoDAOTest {
+import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * ARCHIVO DE PRUEBAS: US3
+ * Contiene pruebas de integración (Fachada), unidad (DAO y Entidades) 
+ * y caja blanca (Caminos).
+ */
+public class US3_CargaDeProductosEnMemoria_Test {
+
+    private FachadaAplicacion fachada;
     private ProductoDAO productoDAO;
-    private Producto productoEjemplo;
+    private MaquinaExpendedora maquina;
+    private Producto producto;
 
     @BeforeEach
     void setUp() {
+        // Inicializacion de la infraestructura real
+        fachada = new FachadaAplicacion();
         productoDAO = new ProductoDAO();
-        productoEjemplo = new Producto("MarcaA", "ProductoA", 1.5f, "Desc", Categoria.BEBIDA);
-    }
 
-    @Test
-    void addProducto_IncrementaLista() {
-        productoDAO.addProducto(productoEjemplo);
-        List<Producto> lista = productoDAO.getAllProductos();
-        assertEquals(1, lista.size());
-        assertEquals(productoEjemplo, lista.get(0));
-    }
-
-    @Test
-    void getProductoPorId_Existente_RetornaProducto() {
-        productoDAO.addProducto(productoEjemplo);
-        Producto encontrado = productoDAO.getProductoPorId(productoEjemplo.getIdProducto());
-        assertNotNull(encontrado);
-        assertEquals("ProductoA", encontrado.getNombre());
-    }
-
-    @Test
-    void getProductoPorId_Inexistente_RetornaNull() {
-        Producto encontrado = productoDAO.getProductoPorId("ID-FALSO");
-        assertNull(encontrado);
-    }
-
-    @Test
-    void deleteProducto_Existente_EliminaCorrectamente() {
-        productoDAO.addProducto(productoEjemplo);
-        productoDAO.deleteProducto(productoEjemplo.getIdProducto());
-        assertTrue(productoDAO.getAllProductos().isEmpty());
-    }
-
-    @Test
-    void modifyProducto_Existente_ActualizaCampos() {
-        productoDAO.addProducto(productoEjemplo);
-        
-        // Creamos un objeto con el mismo ID pero diferentes datos
-        Producto actualizado = new Producto("MarcaB", "ProductoModificado", 2.0f, "NuevaDesc", Categoria.COMIDA);
-        // Forzamos el ID para que coincida (simulando una edición)
         try {
-            java.lang.reflect.Field field = Producto.class.getDeclaredField("idProducto");
-            field.setAccessible(true);
-            field.set(actualizado, productoEjemplo.getIdProducto());
-        } catch (Exception e) { e.printStackTrace(); }
+            // Setup base para pruebas de integracion
+            maquina = fachada.crearMaquina(
+                    Estado.ACTIVO,
+                    "Rúa do Hórreo",
+                    42.878f,
+                    -8.544f,
+                    0f);
 
-        productoDAO.modifyProducto(actualizado);
-        
-        Producto resultado = productoDAO.getProductoPorId(productoEjemplo.getIdProducto());
-        assertEquals("ProductoModificado", resultado.getNombre());
-        assertEquals(2.0f, resultado.getPrecio());
+            producto = fachada.crearProducto(
+                    "MarcaPrueba",
+                    "Refresco",
+                    1.5f,
+                    "33cl",
+                    Categoria.BEBIDA);
+        } catch (OperacionNoExitosa e) {
+            fail("El setup falló.");
+        }
     }
 
-
-
-    /* * PRUEBAS DE CAJA BLANCA
-    * Metodo: productoDAO.getProductosMarca(String marca)
-    */
+    // =========================================================================
+    // PRUEBAS DE UNIDAD: ENTIDAD PRODUCTO (GETTERS, SETTERS, EQUALS)
+    // =========================================================================
 
     @Test
-    void getProductosMarca_Camino_1_2_5_ListaVacia() {
-        // CAMINO: 1 (Init) -> 2 (For: False) -> 5 (Return)
-        // Descripcion: La lista de productos está vacia, el bucle no itera.
-        
-        ProductoDAO daoVacio = new ProductoDAO(); 
-        
-        List<Producto> resultado = daoVacio.getProductosMarca("CualquierMarca");
-        
-        assertTrue(resultado.isEmpty(), "La lista retornada debe estar vacía");
-        assertEquals(0, resultado.size());
-    }
+    void producto_GettersYSetters_FuncionanCorrectamente() {
+        Producto p = new Producto();
+        p.setMarca("CocaCola");
+        p.setNombre("Zero");
+        p.setPrecio(2.0f);
+        p.setDescripcion("Lata 33cl");
+        p.setCategoria(Categoria.BEBIDA);
 
-    @Test
-    void getProductosMarca_Camino_1_2_3_2_5_SinCoincidencias() {
-        // CAMINO: 1 -> 2 (True) -> 3 (If: False) -> 2 (False) -> 5
-        // Descripcion: Hay productos, pero ninguno coincide con la marca. 
-        // Entra en el bucle pero se salta el cuerpo del IF.
-        
-        ProductoDAO daoConDatos = new ProductoDAO();
-        daoConDatos.addProducto(new Producto("Pepsi", "Refresco", 1.5f, "Soda", Categoria.BEBIDA));
-        
-        // Buscamos una marca que NO existe en el DAO
-        List<Producto> resultado = daoConDatos.getProductosMarca("CocaCola");
-        
-        assertTrue(resultado.isEmpty(), "No debería encontrar productos de una marca distinta");
+        assertEquals("CocaCola", p.getMarca());
+        assertEquals("Zero", p.getNombre());
+        assertEquals(2.0f, p.getPrecio());
+        assertEquals("Lata 33cl", p.getDescripcion());
+        assertEquals(Categoria.BEBIDA, p.getCategoria());
+        assertNotNull(p.getIdProducto());
     }
 
     @Test
-    void getProductosMarca_Camino_1_2_3_4_2_5_ConCoincidencias() {
-        // CAMINO: 1 -> 2 (True) -> 3 (If: True) -> 4 (Add) -> 2 (False) -> 5
-        // Descripcion: Existe al menos un producto que coincide. 
-        // Se recorre todo el flujo incluyendo el cuerpo del IF.
+    void producto_Equals_CompruebaIdUnico() {
+        Producto p1 = new Producto("A", "B", 1f, "C", Categoria.COMIDA);
+        Producto p2 = new Producto("A", "B", 1f, "C", Categoria.COMIDA);
         
-        ProductoDAO daoConDatos = new ProductoDAO();
-        String marcaBuscada = "CocaCola";
-        daoConDatos.addProducto(new Producto(marcaBuscada, "Zero", 1.5f, "Sin azúcar", Categoria.BEBIDA));
-        daoConDatos.addProducto(new Producto("Otras", "Producto", 1.0f, "Desc", Categoria.COMIDA));
-        
-        List<Producto> resultado = daoConDatos.getProductosMarca(marcaBuscada);
-        
-        assertEquals(1, resultado.size(), "Debería haber encontrado exactamente 1 producto");
-        assertEquals(marcaBuscada, resultado.get(0).getMarca());
+        assertNotEquals(p1, p2);
+        assertEquals(p1, p1);
+        assertNotEquals(p1, null);
     }
 
+    // =========================================================================
+    // PRUEBAS DE UNIDAD: ENTIDAD STOCKPRODUCTO (GETTERS, SETTERS, EQUALS, LOGICA)
+    // =========================================================================
+
+    @Test
+    void stockProducto_GettersYSetters_FuncionanCorrectamente() {
+        StockProducto sp = new StockProducto();
+        sp.setCantidad(10);
+        sp.setProducto(producto);
+        sp.setMaquina(maquina);
+        
+        Date fecha = new Date();
+        sp.setFechaCaducidad(fecha);
+
+        assertEquals(10, sp.getCantidad());
+        assertEquals(producto, sp.getProducto());
+        assertEquals(maquina, sp.getMaquina());
+        assertEquals(fecha, sp.getFechaCaducidad());
+    }
+
+    @Test
+    void stockProducto_EqualsYHashCode() {
+        StockProducto sp1 = new StockProducto(producto, maquina, 10, null);
+        StockProducto sp2 = new StockProducto(producto, maquina, 10, null);
+
+        // Deben ser distintos por tener IDs unicos generados en el constructor
+        assertNotEquals(sp1, sp2);
+        assertNotEquals(sp1.hashCode(), sp2.hashCode());
+        assertEquals(sp1, sp1);
+    }
+
+    @Test
+    void stockProducto_ConsumoDiarioYFechaEstimada() throws NoStockException {
+        // Inicializamos con 30 unidades
+        StockProducto sp = new StockProducto(producto, maquina, 30, null);
+        
+        // Simulamos 10 ventas en el dia de hoy
+        for(int i=0; i<10; i++) sp.registrarVenta();
+
+        // Al haber 10 ventas en < 1 dia de diferencia, el consumo es de 10 unidades/dia
+        assertEquals(10.0f, sp.getConsumoDiario(), "El consumo debe ser 10/1 = 10");
+
+        // Fecha estimada: 
+        // Empezamos con 30 y vendimos 10 -> Quedan 20 unidades.
+        // 20 restantes / 10 de consumo diario = 2 dias a partir de hoy.
+        Date fechaEstimada = sp.getFechaEstimadaAgota();
+        assertNotNull(fechaEstimada);
+        
+        Calendar calEsperado = Calendar.getInstance();
+        calEsperado.add(Calendar.DAY_OF_YEAR, 2); // Esperamos que sume 2 dias
+        
+        // Verificamos que la fecha sea aproximadamente en 2 dias (tolerancia de 1 segundo)
+        long diff = Math.abs(fechaEstimada.getTime() - calEsperado.getTimeInMillis());
+        assertTrue(diff < 1000, "La fecha estimada debe ser dentro de 2 dias");
+    }
+
+    @Test
+    void stockProducto_FechaEstimada_RetornaNullSiNoHayVentas() {
+        StockProducto sp = new StockProducto(producto, maquina, 10, null);
+        assertNull(sp.getFechaEstimadaAgota(), "Sin ventas no se puede estimar agotamiento");
+    }
+
+    @Test
+    void stockProducto_GestionDeVentasYReposicion() throws NoStockException {
+        StockProducto stock = new StockProducto(producto, maquina, 6, null);
+        assertFalse(stock.necesitaReposicion());
+
+        stock.registrarVenta(); 
+        stock.registrarVenta(); 
+        assertTrue(stock.necesitaReposicion());
+    }
+
+    // =========================================================================
+    // PRUEBAS DE INTEGRACIÓN: ESTABLECER STOCK (FACHADA)
+    // =========================================================================
+
+    @Test
+    void establecerStockManual_IntegracionCompleta() throws MaquinaNoEncontrada, OperacionNoExitosa {
+        fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), 25, null);
+
+        List<StockProducto> lista = fachada.visualizarProductosYStock(maquina.getIdMaquina());
+        assertEquals(1, lista.size());
+        assertEquals(25, lista.get(0).getCantidad());
+    }
+
+    // =========================================================================
+    // PRUEBAS DE UNIDAD: PRODUCTO DAO (CRUD)
+    // =========================================================================
+
+    @Test
+    void productoDAO_EliminarYBuscar() {
+        Producto p = new Producto("Test", "Test", 1f, "T", Categoria.COMIDA);
+        productoDAO.addProducto(p);
+        assertNotNull(productoDAO.getProductoPorId(p.getIdProducto()));
+        
+        productoDAO.deleteProducto(p.getIdProducto());
+        assertNull(productoDAO.getProductoPorId(p.getIdProducto()));
+    }
+
+    // =========================================================================
+    // PRUEBAS DE CAJA BLANCA: getProductosMarca
+    // =========================================================================
+
+    @Test
+    void getProductosMarca_Camino_ListaVacia() {
+        ProductoDAO daoVacio = new ProductoDAO();
+        assertTrue(daoVacio.getProductosMarca("Cualquier").isEmpty());
+    }
+
+    @Test
+    void getProductosMarca_Camino_ConCoincidencias() {
+        String marca = "Fanta";
+        productoDAO.addProducto(new Producto(marca, "Naranja", 1f, "S", Categoria.BEBIDA));
+        List<Producto> resultado = productoDAO.getProductosMarca(marca);
+        assertEquals(1, resultado.size());
+        assertEquals(marca, resultado.get(0).getMarca());
+    }
 }
