@@ -1,110 +1,123 @@
 package com.sistema.negocio;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.sistema.modelo.entidades.Producto;
+import com.sistema.modelo.enums.Categoria;
+import com.sistema.datos.ProductoDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.sistema.excepciones.MaquinaNoEncontrada;
-import com.sistema.excepciones.OperacionNoExitosa;
-import com.sistema.modelo.entidades.MaquinaExpendedora;
-import com.sistema.modelo.entidades.Producto;
-import com.sistema.modelo.entidades.StockProducto;
-import com.sistema.modelo.enums.Categoria;
-import com.sistema.modelo.enums.Estado;
+import java.util.List;
 
-public class US3_CargaDeProductosEnMemoria_Test {
+class ProductoDAOTest {
 
-        private FachadaAplicacion fachada;
-        private MaquinaExpendedora maquina;
-        private Producto producto;
+    private ProductoDAO productoDAO;
+    private Producto productoEjemplo;
 
-        @BeforeEach
-        void setUp() {
-                fachada = new FachadaAplicacion();
+    @BeforeEach
+    void setUp() {
+        productoDAO = new ProductoDAO();
+        productoEjemplo = new Producto("MarcaA", "ProductoA", 1.5f, "Desc", Categoria.BEBIDA);
+    }
 
-                try {
+    @Test
+    void addProducto_IncrementaLista() {
+        productoDAO.addProducto(productoEjemplo);
+        List<Producto> lista = productoDAO.getAllProductos();
+        assertEquals(1, lista.size());
+        assertEquals(productoEjemplo, lista.get(0));
+    }
 
-                        maquina = fachada.crearMaquina(
-                                        Estado.ACTIVO,
-                                        "Rúa do Hórreo",
-                                        42.878f,
-                                        -8.544f,
-                                        0f);
+    @Test
+    void getProductoPorId_Existente_RetornaProducto() {
+        productoDAO.addProducto(productoEjemplo);
+        Producto encontrado = productoDAO.getProductoPorId(productoEjemplo.getIdProducto());
+        assertNotNull(encontrado);
+        assertEquals("ProductoA", encontrado.getNombre());
+    }
 
-                        producto = fachada.crearProducto(
-                                        "CocaCola",
-                                        "Coca-Cola Zero",
-                                        1.50f,
-                                        "Lata de Coca-Cola Zero",
-                                        Categoria.BEBIDA);
+    @Test
+    void getProductoPorId_Inexistente_RetornaNull() {
+        Producto encontrado = productoDAO.getProductoPorId("ID-FALSO");
+        assertNull(encontrado);
+    }
 
-                } catch (OperacionNoExitosa one) {
-                        
-                }
+    @Test
+    void deleteProducto_Existente_EliminaCorrectamente() {
+        productoDAO.addProducto(productoEjemplo);
+        productoDAO.deleteProducto(productoEjemplo.getIdProducto());
+        assertTrue(productoDAO.getAllProductos().isEmpty());
+    }
 
-        }
+    @Test
+    void modifyProducto_Existente_ActualizaCampos() {
+        productoDAO.addProducto(productoEjemplo);
+        
+        // Creamos un objeto con el mismo ID pero diferentes datos
+        Producto actualizado = new Producto("MarcaB", "ProductoModificado", 2.0f, "NuevaDesc", Categoria.COMIDA);
+        // Forzamos el ID para que coincida (simulando una edición)
+        try {
+            java.lang.reflect.Field field = Producto.class.getDeclaredField("idProducto");
+            field.setAccessible(true);
+            field.set(actualizado, productoEjemplo.getIdProducto());
+        } catch (Exception e) { e.printStackTrace(); }
 
-        @Test
-        void establecerStockManual_MaquinaInexistente_LanzaExcepcion() {
-                // Preparacion: Una ID que no existe
-                String idFalsa = "MAQ-999";
-                
-                // Ejecucion y Verificacion
-                assertThrows(MaquinaNoEncontrada.class, () -> {
-                fachada.establecerStockManual(idFalsa, producto.getIdProducto(), 10, null);
-                });
-        }
+        productoDAO.modifyProducto(actualizado);
+        
+        Producto resultado = productoDAO.getProductoPorId(productoEjemplo.getIdProducto());
+        assertEquals("ProductoModificado", resultado.getNombre());
+        assertEquals(2.0f, resultado.getPrecio());
+    }
 
-        @Test
-        void establecerStockManual_ProductoNuevoEnMaquina_CreaElRegistroCorrectamente() throws MaquinaNoEncontrada, OperacionNoExitosa {
-                // Escenario: La maquina esta vacia. El administrador establece 20 unidades.
-                int cantidadInicial = 20;
-                
-                fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), cantidadInicial, null);
-                
-                // Verificación: Consultamos el stock y comprobamos que se ha creado
-                List<StockProducto> lista = fachada.visualizarProductosYStock(maquina.getIdMaquina());
-                assertEquals(1, lista.size(), "Debería haberse creado un registro de stock");
-                assertEquals(cantidadInicial, lista.get(0).getCantidad(), "La cantidad debe coincidir con la establecida");
-        }
 
-        @Test
-        void establecerStockManual_ProductoYaExistente_ActualizaLaCantidadExistente() throws MaquinaNoEncontrada, OperacionNoExitosa {
-                // Escenario: El sistema cree que hay 10 unidades (por un proceso previo), 
-                // pero el administrador cuenta fisicamente 5 y lo corrige manualmente.
-                
-                // Anadimos stock inicial
-                fachada.agregarStock(maquina.getIdMaquina(), producto.getIdProducto(), 10);
-                
-                // El administrador establece manualmente el estado real (5 unidades)
-                int cantidadReal = 5;
-                fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), cantidadReal, null);
-                
-                // Verificacion: No debe haber dos registros, debe haber uno solo actualizado
-                List<StockProducto> lista = fachada.visualizarProductosYStock(maquina.getIdMaquina());
-                assertEquals(1, lista.size(), "No deben duplicarse los registros de stock");
-                assertEquals(cantidadReal, lista.get(0).getCantidad(), "El stock debe haberse actualizado al valor real");
-        }
 
-        @Test
-        void establecerStockManual_ActualizaFechaCaducidadCorrectamente() throws MaquinaNoEncontrada, OperacionNoExitosa {
-                // Escenario: Se actualiza el stock y tambien se cambia la fecha de caducidad.
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.MONTH, 1);
-                Date nuevaFecha = cal.getTime();
+    /* * PRUEBAS DE CAJA BLANCA
+    * Metodo: productoDAO.getProductosMarca(String marca)
+    */
 
-                fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), 15, nuevaFecha);
+    @Test
+    void getProductosMarca_Camino_1_2_5_ListaVacia() {
+        // CAMINO: 1 (Init) -> 2 (For: False) -> 5 (Return)
+        // Descripcion: La lista de productos está vacia, el bucle no itera.
+        
+        ProductoDAO daoVacio = new ProductoDAO(); 
+        
+        List<Producto> resultado = daoVacio.getProductosMarca("CualquierMarca");
+        
+        assertTrue(resultado.isEmpty(), "La lista retornada debe estar vacía");
+        assertEquals(0, resultado.size());
+    }
 
-                StockProducto stock = fachada.visualizarProductosYStock(maquina.getIdMaquina()).get(0);
-                assertEquals(nuevaFecha, stock.getFechaCaducidad(), "La fecha de caducidad debe haberse actualizado");
-        }
+    @Test
+    void getProductosMarca_Camino_1_2_3_2_5_SinCoincidencias() {
+        // CAMINO: 1 -> 2 (True) -> 3 (If: False) -> 2 (False) -> 5
+        // Descripcion: Hay productos, pero ninguno coincide con la marca. 
+        // Entra en el bucle pero se salta el cuerpo del IF.
+        
+        ProductoDAO daoConDatos = new ProductoDAO();
+        daoConDatos.addProducto(new Producto("Pepsi", "Refresco", 1.5f, "Soda", Categoria.BEBIDA));
+        
+        // Buscamos una marca que NO existe en el DAO
+        List<Producto> resultado = daoConDatos.getProductosMarca("CocaCola");
+        
+        assertTrue(resultado.isEmpty(), "No debería encontrar productos de una marca distinta");
+    }
+
+    @Test
+    void getProductosMarca_Camino_1_2_3_4_2_5_ConCoincidencias() {
+        // CAMINO: 1 -> 2 (True) -> 3 (If: True) -> 4 (Add) -> 2 (False) -> 5
+        // Descripcion: Existe al menos un producto que coincide. 
+        // Se recorre todo el flujo incluyendo el cuerpo del IF.
+        
+        ProductoDAO daoConDatos = new ProductoDAO();
+        String marcaBuscada = "CocaCola";
+        daoConDatos.addProducto(new Producto(marcaBuscada, "Zero", 1.5f, "Sin azúcar", Categoria.BEBIDA));
+        daoConDatos.addProducto(new Producto("Otras", "Producto", 1.0f, "Desc", Categoria.COMIDA));
+        
+        List<Producto> resultado = daoConDatos.getProductosMarca(marcaBuscada);
+        
+        assertEquals(1, resultado.size(), "Debería haber encontrado exactamente 1 producto");
+        assertEquals(marcaBuscada, resultado.get(0).getMarca());
+    }
 
 }
