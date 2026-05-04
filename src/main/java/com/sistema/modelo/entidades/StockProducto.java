@@ -4,14 +4,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-import com.sistema.excepciones.NoStockException;
+import com.sistema.excepciones.StockNoEncontrado;
 
 public class StockProducto {
     private String idStock;
     private int cantidad;
     private int ventas;
-    private boolean necesitaReposicion = false;
-    // private Date fechaEstimadaAgota; ES CALCULADO
     private Date fechaReferenciaConsumo;
     private Date fechaCaducidad;
     private Producto producto;
@@ -90,10 +88,6 @@ public class StockProducto {
 
     public void setMaquina(MaquinaExpendedora maquina) {
         this.maquina = maquina;
-    }
-
-    public void setNecesitaReposicion(Boolean necesitaReposicion) {
-        this.necesitaReposicion = necesitaReposicion;
     }
 
     public void setFechaCaducidad(Date fechaCaducidad) {
@@ -176,13 +170,13 @@ public class StockProducto {
         return !fechaCaducidad.after(limite.getTime());
     }
 
-    public void registrarVenta() throws NoStockException {
+    public void registrarVenta() throws StockNoEncontrado {
         if (cantidad > 0) {
             this.cantidad--;
             this.ventas++;
         } else {
             // return null; //Podríamos meter una Illegal Exception?
-            throw new NoStockException("No hay existencias disponibles");
+            throw new StockNoEncontrado("No hay existencias disponibles");
         }
         // Al registrar una venta se evalua si se necesita una reposicion
         // if (generadorAlertas.generarAlertaStock() == true) {
