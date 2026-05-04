@@ -7,7 +7,9 @@ import com.sistema.datos.MaquinaDAO;
 import com.sistema.datos.ProductoDAO;
 import com.sistema.datos.StockDAO;
 import com.sistema.datos.VentaDAO;
-import com.sistema.excepciones.*;
+import com.sistema.excepciones.MaquinaNoEncontrada;
+import com.sistema.excepciones.NoStockException;
+import com.sistema.excepciones.OperacionNoExitosa;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.PosicionGPS;
 import com.sistema.modelo.entidades.Producto;
@@ -97,12 +99,16 @@ public class FachadaAplicacion {
         agregarStock(idMaquina, idProducto, cantidad, null);
     }
 
-     // Permite al administrador establecer la cantidad exacta de un producto en una máquina.
-    public void establecerStockManual(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad) throws MaquinaNoEncontrada, OperacionNoExitosa {
+    // Permite al administrador establecer la cantidad exacta de un producto en una
+    // máquina.
+    public void establecerStockManual(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad)
+            throws MaquinaNoEncontrada, OperacionNoExitosa {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
-        if (maquina == null) throw new MaquinaNoEncontrada("La máquina " + idMaquina + " no existe.");
+        if (maquina == null)
+            throw new MaquinaNoEncontrada("La máquina " + idMaquina + " no existe.");
         Producto producto = productoDAO.getProductoPorId(idProducto);
-        if (producto == null) throw new OperacionNoExitosa("El producto " + idProducto + " no existe.");
+        if (producto == null)
+            throw new OperacionNoExitosa("El producto " + idProducto + " no existe.");
         StockProducto stockExistente = stockDAO.getStockProductoMaquina(maquina, producto);
         if (stockExistente != null) {
             stockExistente.setCantidad(cantidad);
@@ -142,7 +148,7 @@ public class FachadaAplicacion {
             Venta venta = new Venta(metodoPago, producto, maquina);
             ventaDAO.addVenta(venta);
         } catch (NoStockException e) {
-            
+
         }
     }
 

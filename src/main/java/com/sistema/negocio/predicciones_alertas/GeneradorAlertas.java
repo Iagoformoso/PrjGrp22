@@ -17,7 +17,6 @@ public class GeneradorAlertas {
         this.predicciones = predicciones;
     }
 
-
     /**
      * Version sin argumentos: Comprueba la alerta con un margen por defecto
      */
@@ -36,11 +35,12 @@ public class GeneradorAlertas {
         for (StockProducto stock : todosLosStocks) {
             // Obtenemos la prediccion de consumo diario para este producto en esta maquina
             int consumoDiario = predicciones.prediccionConsumo(stock.getProducto(), stock.getMaquina());
-            
-            // Calculamos el total de perdida de stock como ventas estimadas + unidades que caducan
+
+            // Calculamos el total de perdida de stock como ventas estimadas + unidades que
+            // caducan
             int unidadesEstimadasVenta = consumoDiario * numDias;
             int unidadesACaducar = getUnidadesACaducar(stock, numDias);
-            
+
             int perdidaTotal = unidadesEstimadasVenta + unidadesACaducar;
 
             // Comprobamos si el stock resultante es critico
@@ -57,8 +57,9 @@ public class GeneradorAlertas {
      * (Requiere una futura implementacion de lotes en StockProducto).
      */
     private int getUnidadesACaducar(StockProducto stock, int dias) {
-        // Por ahora devolvemos 0 ya que StockProducto no tiene lista de caducidades por unidad.
+        // Por ahora devolvemos 0 ya que StockProducto no tiene lista de caducidades por
+        // unidad.
         // Aqui se consultaria el campo de fecha de caducidad de los lotes.
-        return 0; 
+        return 0;
     }
 }

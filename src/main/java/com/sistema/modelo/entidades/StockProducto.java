@@ -11,7 +11,7 @@ public class StockProducto {
     private int cantidad;
     private int ventas;
     private boolean necesitaReposicion = false;
-    //private Date fechaEstimadaAgota; ES CALCULADO
+    // private Date fechaEstimadaAgota; ES CALCULADO
     private Date fechaReferenciaConsumo;
     private Date fechaCaducidad;
     private Producto producto;
@@ -32,7 +32,7 @@ public class StockProducto {
         this.fechaCaducidad = fechaCaducidad;
         this.ventas = 0;
         this.fechaReferenciaConsumo = new Date();
-        //this.generadorAlertas = new GeneradorAlertas();
+        // this.generadorAlertas = new GeneradorAlertas();
     }
 
     // GETTERS
@@ -107,10 +107,13 @@ public class StockProducto {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-       StockProducto other = (StockProducto) obj;
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        StockProducto other = (StockProducto) obj;
         return java.util.Objects.equals(idStock, other.idStock);
     }
 
@@ -119,14 +122,16 @@ public class StockProducto {
         return java.util.Objects.hash(idStock);
     }
 
-    /*@Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof StockProducto)) return false;
-        StockProducto other = (StockProducto) obj;
-        return this.maquina.equals(other.getMaquina()) && 
-            this.producto.equals(other.getProducto());
-    }*/
+    /*
+     * @Override
+     * public boolean equals(Object obj) {
+     * if (this == obj) return true;
+     * if (!(obj instanceof StockProducto)) return false;
+     * StockProducto other = (StockProducto) obj;
+     * return this.maquina.equals(other.getMaquina()) &&
+     * this.producto.equals(other.getProducto());
+     * }
+     */
 
     // Calcula consumo diario desde la fecha de referencia para cálculo
     public float getConsumoDiario() {
@@ -176,14 +181,15 @@ public class StockProducto {
             this.cantidad--;
             this.ventas++;
         } else {
-            //return null; //Podríamos meter una Illegal Exception?
+            // return null; //Podríamos meter una Illegal Exception?
             throw new NoStockException("No hay existencias disponibles");
         }
         // Al registrar una venta se evalua si se necesita una reposicion
         // if (generadorAlertas.generarAlertaStock() == true) {
-            // necesitaReposicion = true;
+        // necesitaReposicion = true;
         // }
-        // si necesitaReposicion es true y el generador devuelve false se queda como esta
+        // si necesitaReposicion es true y el generador devuelve false se queda como
+        // esta
         // poner a false necesitaReposicion se hace al completar una tarea de reposicion
         // o bien llamando al metodo setNecesitaReposicion
     }

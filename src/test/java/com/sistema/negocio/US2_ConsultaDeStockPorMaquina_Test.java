@@ -66,7 +66,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                                         Categoria.BEBIDA);
 
                 } catch (OperacionNoExitosa one) {
-                        
+
                 }
 
         }
@@ -91,7 +91,8 @@ public class US2_ConsultaDeStockPorMaquina_Test {
          * Técnica usada:
          * Partición de equivalencia válida.
          *
-         * Es caja negra porque nos importa que al consultar la máquina se devuelva el resultado correcto.
+         * Es caja negra porque nos importa que al consultar la máquina se devuelva el
+         * resultado correcto.
          */
         @Test
         void visualizarProductosYStock_MaquinaConStock_DevuelveStockCorrectamente() throws Exception {
@@ -107,7 +108,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(10, resultado.get(0).getCantidad());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        
+
                 }
 
         }
@@ -147,7 +148,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertTrue(resultado.isEmpty());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        
+
                 }
 
         }
@@ -213,7 +214,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(4, resultado.get(0).getCantidad());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        
+
                 }
 
         }
@@ -256,7 +257,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertTrue(resultado.isEmpty());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        
+
                 }
 
         }
@@ -303,7 +304,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(10, resultado.get(0).getCantidad());
 
                 } catch (MaquinaNoEncontrada mne) {
-                        
+
                 }
 
         }
@@ -363,7 +364,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(maquina, resultado.get(0).getMaquina());
 
                 } catch (OperacionNoExitosa | MaquinaNoEncontrada ex) {
-                        
+
                 }
 
         }
@@ -385,7 +386,6 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                 calendario.add(Calendar.DAY_OF_YEAR, dias);
                 return calendario.getTime();
         }
-
 
         /* PRUEBAS DE CAJA BLANCA */
 

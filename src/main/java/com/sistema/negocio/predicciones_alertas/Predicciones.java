@@ -24,7 +24,8 @@ public class Predicciones {
      * Da un 70% de peso a los últimos 7 días y un 30% a los 7 días anteriores
      */
     private float calcularConsumoPonderado(List<Venta> ventas) {
-        if (ventas == null || ventas.isEmpty()) return 0;
+        if (ventas == null || ventas.isEmpty())
+            return 0;
 
         long ahora = new Date().getTime();
         long limiteReciente = ahora - SEMANA_MS;
@@ -55,25 +56,27 @@ public class Predicciones {
      */
     public int prediccionConsumo(Producto producto) {
         List<Venta> todasLasVentas = ventaDAO.getVentasProducto(producto);
-        
-        if (todasLasVentas.isEmpty()) return 0;
 
-        // Para el global, calculamos el consumo total ponderado 
+        if (todasLasVentas.isEmpty())
+            return 0;
+
+        // Para el global, calculamos el consumo total ponderado
         // y lo dividimos por el número de maquinas que venden este producto
         float consumoPonderadoTotal = calcularConsumoPonderado(todasLasVentas);
-        
+
         // Obtenemos cuantas maquinas unicas han registrado ventas de este producto
         long numMaquinas = todasLasVentas.stream()
                 .map(v -> v.getMaquinaExpendedora().getIdMaquina())
                 .distinct()
                 .count();
 
-        if (numMaquinas == 0) return 0;
+        if (numMaquinas == 0)
+            return 0;
         return Math.round(consumoPonderadoTotal / numMaquinas);
     }
 
     /**
-     * Prediccion especifica para una maquina. 
+     * Prediccion especifica para una maquina.
      * Si no hay datos suficientes, se apoya en la tendencia global.
      */
     public int prediccionConsumo(Producto producto, MaquinaExpendedora maquina) {
@@ -83,13 +86,13 @@ public class Predicciones {
                 .collect(Collectors.toList());
 
         float consumoLocal = calcularConsumoPonderado(ventasLocales);
-        
+
         // Si no hay ventas locales, usamos la prediccion global
         if (ventasLocales.isEmpty()) {
             return prediccionConsumo(producto);
         }
 
-        // Si hay pocas ventas (ej. menos de 5 en 2 semanas), 
+        // Si hay pocas ventas (ej. menos de 5 en 2 semanas),
         // suavizamos el resultado con la media global
         if (ventasLocales.size() < 5) {
             float global = prediccionConsumo(producto);

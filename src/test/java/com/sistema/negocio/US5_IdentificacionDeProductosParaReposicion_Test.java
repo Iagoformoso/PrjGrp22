@@ -7,6 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sistema.datos.StockDAO;
 import com.sistema.datos.VentaDAO;
@@ -21,6 +25,7 @@ import com.sistema.modelo.enums.MetodoPago;
 import com.sistema.negocio.predicciones_alertas.GeneradorAlertas;
 import com.sistema.negocio.predicciones_alertas.Predicciones;
 
+@ExtendWith(MockitoExtension.class)
 public class US5_IdentificacionDeProductosParaReposicion_Test {
 
     private VentaDAO ventaDAO;
@@ -31,6 +36,9 @@ public class US5_IdentificacionDeProductosParaReposicion_Test {
     private Producto refresco;
     private MaquinaExpendedora maquinaA;
     private MaquinaExpendedora maquinaB;
+
+    @Mock
+    private Predicciones prediccionesMock;
 
     @BeforeEach
     void setUp() {
@@ -152,6 +160,39 @@ public class US5_IdentificacionDeProductosParaReposicion_Test {
         assertTrue(stock.necesitaReposicion(),
                 "Debe necesitar reposición porque la cantidad es menor que 5");
     }
+
+    /**
+     * Test con Mockito:
+     * Verifica que el Generador de Alertas detecta stock crítico a futuro
+     * usando una predicción simulada.
+     *
+     * En este test no queremos comprobar cómo se calcula la predicción,
+     * porque eso ya se comprueba en otros tests.
+     *
+     * Lo que queremos comprobar es que, si la predicción indica un consumo alto,
+     * el GeneradorAlertas genera correctamente la alerta.
+     */
+    @Test
+    void testGenerarAlertaStockFuturo_ConMockito() {
+        // Stock actual: 12 unidades
+        StockProducto stock = new StockProducto(refresco, maquinaA, 12, null);
+        stockDAO.addStock(stock);
+
+        // Simulamos con Mockito que la predicción de consumo es de 5 unidades al día
+        when(prediccionesMock.prediccionConsumo(refresco, maquinaA)).thenReturn(5);
+
+        // Creamos un generador de alertas usando el mock de predicciones
+        GeneradorAlertas generadorConMock = new GeneradorAlertas(stockDAO, prediccionesMock);
+
+        // Si el consumo es 5 unidades/día durante 2 días:
+        // Consumo estimado = 5 * 2 = 10
+        // Stock futuro = 12 - 10 = 2
+        // Como 2 está por debajo del mínimo, debería generar alerta
+        boolean alerta = generadorConMock.generarAlertaStock(2);
+
+        assertTrue(alerta, "Debería generar alerta porque el stock futuro sería 2");
+    }
+
     // METODOS AUXILIARES PARA LOS TESTS
 
     /**
@@ -172,7 +213,7 @@ public class US5_IdentificacionDeProductosParaReposicion_Test {
 
     /**
      * Test de Caja Blanca - Camino 1-2-5:
-     * El flujo entra en la funcion, la lista de ventas está vacia, 
+     * El flujo entra en la funcion, la lista de ventas está vacia,
      * entonces el bucle for no se ejecuta y devuelve una lista vacia.
      */
     @Test
@@ -185,7 +226,7 @@ public class US5_IdentificacionDeProductosParaReposicion_Test {
 
     /**
      * Test de Caja Blanca - Camino 1-2-3-2-5:
-     * El flujo entra en el bucle (2), evalua la condicion (3) como falsa 
+     * El flujo entra en el bucle (2), evalua la condicion (3) como falsa
      * (el producto no coincide) y vuelve al encabezado del bucle.
      * Se repite 5 veces y sale.
      */
@@ -193,14 +234,15 @@ public class US5_IdentificacionDeProductosParaReposicion_Test {
     void testGetVentasProducto_SinCoincidencias() {
         Producto productoBuscado = new Producto("Target", "Cola", 1.5f, "Refresco", Categoria.BEBIDA);
         Producto productoDiferente = new Producto("Otro", "Agua", 1.0f, "Agua", Categoria.BEBIDA);
-        
+
         // Anadimos 5 ventas de un producto que NO es el buscado
         for (int i = 0; i < 5; i++) {
             ventaDAO.addVenta(new Venta(MetodoPago.TARJETA, productoDiferente, maquinaA));
         }
         List<Venta> resultado = ventaDAO.getVentasProducto(productoBuscado);
 
-        assertEquals(0, resultado.size(), "No debería encontrar coincidencias tras recorrer la lista (Camino 1-2-3-2-5)");
+        assertEquals(0, resultado.size(),
+                "No debería encontrar coincidencias tras recorrer la lista (Camino 1-2-3-2-5)");
     }
 
     /**
