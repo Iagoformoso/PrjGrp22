@@ -21,7 +21,7 @@ import com.sistema.modelo.enums.MetodoPago;
 import com.sistema.negocio.predicciones_alertas.GeneradorAlertas;
 import com.sistema.negocio.predicciones_alertas.Predicciones;
 
-public class PrediccionesYAlertasTest {
+public class US5_IdentificacionDeProductosParaReposicion_Test {
 
     private VentaDAO ventaDAO;
     private StockDAO stockDAO;
