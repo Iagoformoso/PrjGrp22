@@ -2,7 +2,7 @@ package com.sistema.negocio;
 
 import com.sistema.datos.ProductoDAO;
 import com.sistema.excepciones.MaquinaNoEncontrada;
-import com.sistema.excepciones.NoStockException;
+import com.sistema.excepciones.StockNoEncontrado;
 import com.sistema.excepciones.OperacionNoExitosa;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.Producto;
@@ -119,7 +119,7 @@ public class US3_CargaDeProductosEnMemoria_Test {
     }
 
     @Test
-    void stockProducto_ConsumoDiarioYFechaEstimada() throws NoStockException {
+    void stockProducto_ConsumoDiarioYFechaEstimada() throws StockNoEncontrado {
         // Inicializamos con 30 unidades
         StockProducto sp = new StockProducto(producto, maquina, 30, null);
         
@@ -150,7 +150,7 @@ public class US3_CargaDeProductosEnMemoria_Test {
     }
 
     @Test
-    void stockProducto_GestionDeVentasYReposicion() throws NoStockException {
+    void stockProducto_GestionDeVentasYReposicion() throws StockNoEncontrado {
         StockProducto stock = new StockProducto(producto, maquina, 6, null);
         assertFalse(stock.necesitaReposicion());
 
