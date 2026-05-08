@@ -11,7 +11,7 @@ import com.sistema.datos.VentaDAO;
 import com.sistema.excepciones.AutenticacionFallida;
 import com.sistema.excepciones.DatoNoEsperado;
 import com.sistema.excepciones.MaquinaNoEncontrada;
-import com.sistema.excepciones.NoStockException;
+import com.sistema.excepciones.StockNoEncontrado;
 import com.sistema.excepciones.OperacionNoExitosa;
 import com.sistema.excepciones.UsuarioNoEncontrado;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
@@ -207,22 +207,16 @@ public class FachadaAplicacion {
 
     // Ventas
 
-    public void registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago) throws MaquinaNoEncontrada, OperacionNoExitosa {
-
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR)) {
-            throw new OperacionNoExitosa("Solo los administradores pueden registrar ventas.");
-        }
+    public void registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago)
+            throws MaquinaNoEncontrada, StockNoEncontrado {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
-
         StockProducto stock = stockDAO.getStockProductoMaquina(maquina, producto);
-
         try {
             stock.registrarVenta();
             Venta venta = new Venta(metodoPago, producto, maquina);
             ventaDAO.addVenta(venta);
-        } catch (NoStockException e) {
-
+        } catch (StockNoEncontrado e) {
         }
     }
 
