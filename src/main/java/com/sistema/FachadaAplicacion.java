@@ -212,12 +212,10 @@ public class FachadaAplicacion {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
         StockProducto stock = stockDAO.getStockProductoMaquina(maquina, producto);
-        try {
-            stock.registrarVenta();
-            Venta venta = new Venta(metodoPago, producto, maquina);
-            ventaDAO.addVenta(venta);
-        } catch (StockNoEncontrado e) {
-        }
+
+        stock.registrarVenta();
+        Venta venta = new Venta(metodoPago, producto, maquina);
+        ventaDAO.addVenta(venta);
     }
 
     public List<Venta> getVentasMaquina(String idMaquina) throws MaquinaNoEncontrada, OperacionNoExitosa {
