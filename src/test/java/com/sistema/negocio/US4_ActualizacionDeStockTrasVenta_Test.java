@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sistema.datos.StockDAO;
 import com.sistema.datos.VentaDAO;
-import com.sistema.excepciones.NoStockException;
+import com.sistema.excepciones.StockNoEncontrado;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.PosicionGPS;
 import com.sistema.modelo.entidades.Producto;
@@ -71,7 +71,7 @@ public class US4_ActualizacionDeStockTrasVenta_Test {
      * Partición de equivalencia válida.
      */
     @Test
-    void realizarCompra_ConStock_RestaUnaUnidadYCreaVenta() throws NoStockException {
+    void realizarCompra_ConStock_RestaUnaUnidadYCreaVenta() throws StockNoEncontrado {
 
         stock = new StockProducto(producto, maquina, 10, null);
         stockDAO.addStock(stock);
@@ -118,7 +118,7 @@ public class US4_ActualizacionDeStockTrasVenta_Test {
      * y que el precio asociado a ese producto es el esperado.
      */
     @Test
-    void realizarCompra_CobraPrecioCorrectoUnaSolaVez() throws NoStockException {
+    void realizarCompra_CobraPrecioCorrectoUnaSolaVez() throws StockNoEncontrado {
 
         stock = new StockProducto(producto, maquina, 5, null);
         stockDAO.addStock(stock);
@@ -161,7 +161,7 @@ public class US4_ActualizacionDeStockTrasVenta_Test {
      * Análisis de valor límite.
      */
     @Test
-    void realizarCompra_QuedaUltimaUnidad_StockQuedaACeroYCreaVenta() throws NoStockException {
+    void realizarCompra_QuedaUltimaUnidad_StockQuedaACeroYCreaVenta() throws StockNoEncontrado {
 
         stock = new StockProducto(producto, maquina, 1, null);
         stockDAO.addStock(stock);
@@ -202,7 +202,7 @@ public class US4_ActualizacionDeStockTrasVenta_Test {
         stockDAO.addStock(stock);
 
         assertThrows(
-                NoStockException.class,
+                StockNoEncontrado.class,
                 () -> stock.registrarVenta(),
                 "Si no hay stock, debe lanzarse NoStockException");
 
@@ -244,7 +244,7 @@ public class US4_ActualizacionDeStockTrasVenta_Test {
      * Se entra en el if, se decrementa cantidad y se incrementan ventas.
      */
     @Test
-    void registrarVenta_CantidadMayorQueCero_DecrementaCantidadEIncrementaVentas() throws NoStockException {
+    void registrarVenta_CantidadMayorQueCero_DecrementaCantidadEIncrementaVentas() throws StockNoEncontrado {
 
         stock = new StockProducto(producto, maquina, 3, null);
 
@@ -267,7 +267,7 @@ public class US4_ActualizacionDeStockTrasVenta_Test {
         stock = new StockProducto(producto, maquina, 0, null);
 
         assertThrows(
-                NoStockException.class,
+                StockNoEncontrado.class,
                 () -> stock.registrarVenta(),
                 "Con cantidad 0 debe lanzarse NoStockException");
     }
