@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.naming.OperationNotSupportedException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,8 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sistema.excepciones.AutenticacionFallida;
+import com.sistema.excepciones.DatoNoEsperado;
 import com.sistema.excepciones.MaquinaNoEncontrada;
 import com.sistema.excepciones.OperacionNoExitosa;
+import com.sistema.excepciones.UsuarioNoEncontrado;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.Producto;
 import com.sistema.modelo.entidades.StockProducto;
@@ -51,6 +56,8 @@ public class US2_ConsultaDeStockPorMaquina_Test {
 
                 try {
 
+                        fachada.iniciarSesion("Iago", "iago");
+
                         maquina = fachada.crearMaquina(
                                         Estado.ACTIVO,
                                         "Rúa do Hórreo",
@@ -65,7 +72,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                                         "Lata de Coca-Cola Zero",
                                         Categoria.BEBIDA);
 
-                } catch (OperacionNoExitosa one) {
+                } catch (OperacionNoExitosa | UsuarioNoEncontrado | AutenticacionFallida | DatoNoEsperado exc) {
 
                 }
 
@@ -213,7 +220,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(producto, resultado.get(0).getProducto());
                         assertEquals(4, resultado.get(0).getCantidad());
 
-                } catch (MaquinaNoEncontrada mne) {
+                } catch (MaquinaNoEncontrada| OperacionNoExitosa exc) {
 
                 }
 
@@ -256,7 +263,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
 
                         assertTrue(resultado.isEmpty());
 
-                } catch (MaquinaNoEncontrada mne) {
+                } catch (MaquinaNoEncontrada| OperacionNoExitosa exc) {
 
                 }
 
@@ -303,7 +310,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                         assertEquals(producto, resultado.get(0).getProducto());
                         assertEquals(10, resultado.get(0).getCantidad());
 
-                } catch (MaquinaNoEncontrada mne) {
+                } catch (MaquinaNoEncontrada| OperacionNoExitosa exc) {
 
                 }
 
@@ -407,7 +414,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
          */
 
         @Test
-        void necesitaReposicion_CantidadMenorQueCinco_DevuelveTrue() throws MaquinaNoEncontrada {
+        void necesitaReposicion_CantidadMenorQueCinco_DevuelveTrue() throws MaquinaNoEncontrada, OperacionNoExitosa {
 
                 /*
                  * Camino 1:
@@ -417,6 +424,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
                  * Da igual la caducidad porque con el ||, si la primera parte es true,
                  * el resultado total ya es true.
                  */
+                
 
                 fachada.agregarStock(
                                 maquina.getIdMaquina(),
@@ -431,7 +439,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
         }
 
         @Test
-        void necesitaReposicion_CantidadMayorQueCincoYCaducaEnTresDias_DevuelveTrue() throws MaquinaNoEncontrada {
+        void necesitaReposicion_CantidadMayorQueCincoYCaducaEnTresDias_DevuelveTrue() throws MaquinaNoEncontrada, OperacionNoExitosa {
 
                 /*
                  * Camino 2:
@@ -460,7 +468,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
         }
 
         @Test
-        void necesitaReposicion_CantidadMayorQueCincoYCaducaEnSeisDias_DevuelveFalse() throws MaquinaNoEncontrada {
+        void necesitaReposicion_CantidadMayorQueCincoYCaducaEnSeisDias_DevuelveFalse() throws MaquinaNoEncontrada, OperacionNoExitosa {
 
                 /*
                  * Camino 3:
@@ -490,7 +498,7 @@ public class US2_ConsultaDeStockPorMaquina_Test {
         }
 
         @Test
-        void necesitaReposicion_CantidadExactamenteCincoYSinCaducidad_DevuelveFalse() throws MaquinaNoEncontrada {
+        void necesitaReposicion_CantidadExactamenteCincoYSinCaducidad_DevuelveFalse() throws MaquinaNoEncontrada, OperacionNoExitosa {
 
                 /*
                  * Caso extra de valor límite:

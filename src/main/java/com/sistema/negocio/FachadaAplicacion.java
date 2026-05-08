@@ -120,11 +120,17 @@ public class FachadaAplicacion {
         return producto;
     }
 
-    public List<Producto> listarProductos() {
+    public List<Producto> listarProductos() throws OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+            throw new OperacionNoExitosa("Debes ser un administrador o un reponedor para listar productos.");
+        }
         return productoDAO.getAllProductos();
     }
 
-    public Producto buscarProducto(String id) {
+    public Producto buscarProducto(String id) throws OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+            throw new OperacionNoExitosa("Debes ser un administrador o un reponedor para listar productos.");
+        }
         return productoDAO.getProductoPorId(id);
     }
 
@@ -152,7 +158,7 @@ public class FachadaAplicacion {
     public void establecerStockManual(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad)
             throws MaquinaNoEncontrada, OperacionNoExitosa {
 
-        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR || usuarioActual.getRol() != Rol.REPONEDOR) {
+        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR) {
             throw new OperacionNoExitosa("Solo los administradores o reponedores pueden establecer el stock manualmente.");
         }
 

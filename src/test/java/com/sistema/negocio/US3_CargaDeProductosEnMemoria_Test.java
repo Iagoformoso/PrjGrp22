@@ -12,8 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sistema.excepciones.AutenticacionFallida;
+import com.sistema.excepciones.DatoNoEsperado;
 import com.sistema.excepciones.MaquinaNoEncontrada;
 import com.sistema.excepciones.OperacionNoExitosa;
+import com.sistema.excepciones.UsuarioNoEncontrado;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.entidades.Producto;
 import com.sistema.modelo.entidades.StockProducto;
@@ -32,6 +35,8 @@ public class US3_CargaDeProductosEnMemoria_Test {
 
                 try {
 
+                        fachada.iniciarSesion("Iago", "iago");
+
                         maquina = fachada.crearMaquina(
                                         Estado.ACTIVO,
                                         "Rúa do Hórreo",
@@ -46,8 +51,8 @@ public class US3_CargaDeProductosEnMemoria_Test {
                                         "Lata de Coca-Cola Zero",
                                         Categoria.BEBIDA);
 
-                } catch (OperacionNoExitosa one) {
-                        
+                } catch (OperacionNoExitosa | UsuarioNoEncontrado | AutenticacionFallida | DatoNoEsperado exc) {
+
                 }
 
         }
