@@ -11,20 +11,45 @@ import com.sistema.excepciones.DatoNoEsperado;
 import com.sistema.excepciones.UsuarioNoEncontrado;
 import com.sistema.modelo.entidades.Usuario;
 import com.sistema.modelo.enums.Rol;
+import com.sistema.utilidades.LectorUsuarios;
 
 public class UsuarioDAO {
 
     private List<Usuario> usuariosConectados;
+    private LectorUsuarios lector;
 
     public UsuarioDAO() {
         this.usuariosConectados = new ArrayList<>();
+        this.lector = new LectorUsuarios("usuarios.txt");
     }
 
+    //Constructor para los tests
+    public UsuarioDAO(LectorUsuarios lector) {
+        this.usuariosConectados = new ArrayList<>();
+        this.lector = lector;
+    }
+
+
     public synchronized Usuario iniciarSesion(String nombre, String contrasena) throws UsuarioNoEncontrado, AutenticacionFallida, DatoNoEsperado {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(UsuarioDAO.class.getClassLoader().getResourceAsStream("Usuarios.txt")))) {
-            String linea;
-            while ((linea = br.readLine()) != null) {
+        try {
+            // Obtenemos las líneas a través del objeto lector
+            List<String> lineas = lector.leerLineas();
+
+            if (lineas == null) {
+                throw new UsuarioNoEncontrado("No hay ninguna lista de usuarios (es nula)");
+            }
+
+            for (String linea : lineas) {
+
+                if (linea.trim().isEmpty()) continue;   //Saltamos líneas vacías sin problema
+
                 String[] partes = linea.split(";");
+
+                //Si hay un registro incorrecto notificamos inmediatamente, por integridad
+                if (partes.length < 3) {
+                    throw new DatoNoEsperado("Error de integridad: registro corrupto en el archivo de usuarios.");
+                }
+
                 if (partes[0].equals(nombre)) {
                     if (partes[1].equals(contrasena)) {
 
@@ -72,6 +97,10 @@ public class UsuarioDAO {
     }
 
     public synchronized void cerrarSesion(Usuario usuario) throws UsuarioNoEncontrado{
+        if (usuario == null) {
+            throw new UsuarioNoEncontrado("No se puede cerrar sesión de un usuario nulo");
+        }
+
         if(usuariosConectados.contains(usuario)){
             usuariosConectados.remove(usuario);
         }

@@ -1,4 +1,4 @@
-package com.sistema.negocio.predicciones_alertas;
+package com.sistema.predicciones_alertas;
 
 import java.util.List;
 

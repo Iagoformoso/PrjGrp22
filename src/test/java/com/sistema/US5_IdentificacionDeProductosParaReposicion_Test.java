@@ -1,4 +1,4 @@
-package com.sistema.negocio;
+package com.sistema;
 
 import java.util.Calendar;
 import java.util.List;
@@ -22,8 +22,8 @@ import com.sistema.modelo.entidades.Venta;
 import com.sistema.modelo.enums.Categoria;
 import com.sistema.modelo.enums.Estado;
 import com.sistema.modelo.enums.MetodoPago;
-import com.sistema.negocio.predicciones_alertas.GeneradorAlertas;
-import com.sistema.negocio.predicciones_alertas.Predicciones;
+import com.sistema.predicciones_alertas.GeneradorAlertas;
+import com.sistema.predicciones_alertas.Predicciones;
 
 @ExtendWith(MockitoExtension.class)
 public class US5_IdentificacionDeProductosParaReposicion_Test {

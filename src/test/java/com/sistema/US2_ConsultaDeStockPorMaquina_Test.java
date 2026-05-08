@@ -1,10 +1,8 @@
-package com.sistema.negocio;
+package com.sistema;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import javax.naming.OperationNotSupportedException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

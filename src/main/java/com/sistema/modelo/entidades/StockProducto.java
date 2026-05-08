@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import com.sistema.excepciones.NoStockException;
+import com.sistema.predicciones_alertas.GeneradorAlertas;
 
 public class StockProducto {
     private String idStock;
@@ -16,7 +17,7 @@ public class StockProducto {
     private Date fechaCaducidad;
     private Producto producto;
     private MaquinaExpendedora maquina;
-    private com.sistema.negocio.predicciones_alertas.GeneradorAlertas generadorAlertas;
+    private GeneradorAlertas generadorAlertas;
 
     public StockProducto() {
         this.idStock = "STOCK-" + UUID.randomUUID().toString().substring(0, 8);

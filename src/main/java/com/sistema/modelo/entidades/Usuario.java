@@ -34,13 +34,18 @@ public class Usuario {
 
     // EQUALS
 
+    // EQUALS
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Producto other = (Producto) obj;
-        return java.util.Objects.equals(this.getNombre(), other.getNombre());
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Usuario other = (Usuario) obj;
+        return java.util.Objects.equals(this.nombre, other.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(nombre);
     }
 
 }
