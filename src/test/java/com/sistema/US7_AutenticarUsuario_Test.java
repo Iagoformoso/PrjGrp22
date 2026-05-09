@@ -539,6 +539,8 @@ class US7_AutenticarUsuario_Test {
         assertDoesNotThrow(
             () -> fachada.listarMaquinas(),
     "El rol " + rol + " debería tener permiso de acceso");
+
+        fachada.cerrarSesion();
     }
 
     /*
