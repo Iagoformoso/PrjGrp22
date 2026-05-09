@@ -24,7 +24,7 @@ import java.util.List;
 
 @Tag("US7")
 @Tag("Usuarios")
-@DisplayName("Tests de la US7: Autenticar usuarios")
+@DisplayName("Tests de la US7: autenticar usuarios")
 class US7_AutenticarUsuario_Test {
 
     private UsuarioDAO usuarioDAO;
@@ -51,7 +51,7 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ClasesEquivalencia")
     @ParameterizedTest
-    @DisplayName("CE válida: login exitoso con diferentes roles")
+    @DisplayName("[US7-1] CE válida: login exitoso con diferentes roles")
     @CsvSource({
             "Iago, iaqo, ADMINISTRADOR",
             "Enrique, enrique, REPONEDOR",
@@ -78,9 +78,13 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ClasesEquivalencia")
     @Test
-    @DisplayName("CE no válida: usuario no encontrado")
+    @DisplayName("[US7-2] CE no válida: usuario no encontrado")
     void testUsuarioNoEncontrado() throws IOException {
-        when(lectorMock.leerLineas()).thenReturn(Collections.emptyList());
+        when(lectorMock.leerLineas()).thenReturn(List.of(
+                "Iago;iago;ADMINISTRADOR",
+                "Enrique;enrique;REPONEDOR",
+                "Miguel;miguel;TECNICO"
+        ));
 
         assertThrows(UsuarioNoEncontrado.class,
             () -> usuarioDAO.iniciarSesion("nadie", "123"),
@@ -99,7 +103,7 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ClasesEquivalencia")
     @Test
-    @DisplayName("CE no válida: contraseña incorrecta")
+    @DisplayName("[US7-3] CE no válida: contraseña incorrecta")
     void testContrasenaIncorrecta() throws IOException {
         when(lectorMock.leerLineas()).thenReturn(List.of("admin;1234;ADMINISTRADOR"));
 
@@ -119,7 +123,7 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ClasesEquivalencia")
     @Test
-    @DisplayName("CE no válida: rol no reconocido en fichero")
+    @DisplayName("[US7-4] CE no válida: rol no reconocido en fichero")
     void testIniciarSesionRolNoValido() throws IOException {
         when(lectorMock.leerLineas()).thenReturn(List.of("Manuel;manuel;PROFESOR"));
 
@@ -139,8 +143,11 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ClasesEquivalencia")
     @Test
-    @DisplayName("CE no válida: cerrar sesión no abierta")
+    @DisplayName("[US7-5] CE no válida: cerrar sesión no abierta")
     void testCerrarSesionNoAbierta() throws Exception {
+        when(lectorMock.leerLineas()).thenReturn(List.of("Iago;iago;ADMINISTRADOR"));
+        usuarioDAO.iniciarSesion("Iago", "iago");
+
         Usuario uInexistente = new Usuario("usuario_offline", Rol.REPONEDOR);
 
         assertThrows(UsuarioNoEncontrado.class,
@@ -160,7 +167,7 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ClasesEquivalencia")
     @Test
-    @DisplayName("CE válida: cierre de sesión exitoso")
+    @DisplayName("[US7-6] CE válida: cierre de sesión exitoso")
     void testCerrarSesionExitoso() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of("admin;1234;ADMINISTRADOR"));
         Usuario u = usuarioDAO.iniciarSesion("admin", "1234");
@@ -188,7 +195,7 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ValoresLimite")
     @Test
-    @DisplayName("AVL: archivo de usuarios vacío")
+    @DisplayName("[US7-7] AVL: archivo de usuarios vacío")
     void testArchivoVacio() throws IOException {
         when(lectorMock.leerLineas()).thenReturn(new ArrayList<>());
 
@@ -208,7 +215,7 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ValoresLimite")
     @Test
-    @DisplayName("AVL: primer registro del archivo")
+    @DisplayName("[US7-8] AVL: primer registro del archivo")
     void testAVL_PrimerRegistro() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of(
                 "primero;ppp;ADMINISTRADOR",
@@ -233,7 +240,7 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ValoresLimite")
     @Test
-    @DisplayName("AVL: último registro del archivo")
+    @DisplayName("[US7-9] AVL: último registro del archivo")
     void testAVL_UltimoRegistro() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of(
                 "primero;ppp;ADMINISTRADOR",
@@ -251,6 +258,27 @@ class US7_AutenticarUsuario_Test {
 
     /*
      * Funcionalidad probada: capacidad de cierre de sesión
+     * Caso probado: cierre de sesión de una sesión cuando no hay ninguna abierta
+     * Valor límite: lista con 0 elementos
+     *
+     * Salida esperada:
+     * -excepción UsuarioNoEncontrado al intentar cerrar una sesión que no existe
+     */
+    //Añadido porque se me olvidó meterlo antes
+    @Tag("CajaNegra")
+    @Tag("ClasesEquivalencia")
+    @Test
+    @DisplayName("[US7-23] AVL: lista de sesiones vacía")
+    void testAVL_CerrarSesionVacia() throws Exception {
+        Usuario uInexistente = new Usuario("usuario_offline", Rol.REPONEDOR);
+
+        assertThrows(UsuarioNoEncontrado.class,
+                () -> usuarioDAO.cerrarSesion(uInexistente),
+                "Cerrar sesión inválida no ha lanzado UsuarioNoEncontrado");
+    }
+
+    /*
+     * Funcionalidad probada: capacidad de cierre de sesión
      * Caso probado: cierre de sesión del primer usuario que entró en la lista de conectados
      * Valor límite: primer elemento de la lista
      *
@@ -261,7 +289,7 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ValoresLimite")
     @Test
-    @DisplayName("AVL: cerrar sesión del primer usuario conectado")
+    @DisplayName("[US7-10] AVL: cerrar sesión del primer usuario conectado")
     void testAVL_CerrarPrimerConectado() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of(
                 "primero;ppp;ADMINISTRADOR",
@@ -289,7 +317,7 @@ class US7_AutenticarUsuario_Test {
     @Tag("CajaNegra")
     @Tag("ValoresLimite")
     @Test
-    @DisplayName("AVL: cerrar sesión del último usuario conectado")
+    @DisplayName("[US7-11] AVL: cerrar sesión del último usuario conectado")
     void testAVL_CerrarUltimoConectado() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of(
                 "primero;ppp;ADMINISTRADOR",
@@ -313,7 +341,7 @@ class US7_AutenticarUsuario_Test {
      */
     @Tag("ConjeturaErrores")
     @Test
-    @DisplayName("Conjetura: registro con más campos")
+    @DisplayName("[US7-12] Conjetura: registro con más campos")
     void testLineaConCamposExtra() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of("Iago;iago;ADMINISTRADOR;extra;"));
 
@@ -333,7 +361,7 @@ class US7_AutenticarUsuario_Test {
      */
     @Tag("ConjeturaErrores")
     @ParameterizedTest
-    @DisplayName("Conjetura: construcción errónea de registros que deben fallar")
+    @DisplayName("[US7-13] Conjetura: construcción errónea de registros que deben fallar")
     @CsvSource({
             "'admin ;1234;ADMINISTRADOR', admin, 1234",  //Espacio en blanco después
             "'admin; 1234;ADMINISTRADOR', admin, 1234",  //Espacio en blanco antes
@@ -362,7 +390,7 @@ class US7_AutenticarUsuario_Test {
 
     @Tag("ConjeturaErrores")
     @Test
-    @DisplayName("Conjetura: salto de líneas vacías en el archivo")
+    @DisplayName("[US7-14] Conjetura: salto de líneas vacías en el archivo")
     void testRobustezLineasVacias() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of(
                 "",
@@ -387,7 +415,7 @@ class US7_AutenticarUsuario_Test {
      */
     @Tag("ConjeturaErrores")
     @Test
-    @DisplayName("Conjetura: usuario y contraseña con caracteres especiales")
+    @DisplayName("[US7-15] Conjetura: usuario y contraseña con caracteres especiales")
     void testCaracteresEspeciales() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of("Íñigo;#@_%;TECNICO"));
 
@@ -405,7 +433,7 @@ class US7_AutenticarUsuario_Test {
      */
     @Tag("ConjeturaErrores")
     @Test
-    @DisplayName("Conjetura: lector de archivos devuelve null")
+    @DisplayName("[US7-16] Conjetura: lector de archivos devuelve null")
     void testLectorDevuelveNull() throws IOException {
         when(lectorMock.leerLineas()).thenReturn(null);
 
@@ -421,7 +449,7 @@ class US7_AutenticarUsuario_Test {
      */
     @Tag("ConjeturaErrores")
     @Test
-    @DisplayName("Conjetura: cerrar sesión de un usuario nulo")
+    @DisplayName("[US7-17] Conjetura: cerrar sesión de un usuario nulo")
     void testCerrarSesionNulo() {
         assertThrows(UsuarioNoEncontrado.class,
             () -> usuarioDAO.cerrarSesion(null),
@@ -457,7 +485,7 @@ class US7_AutenticarUsuario_Test {
      */
     @Tag("CajaBlanca")
     @Test
-    @DisplayName("Caja blanca: bucle elemento intermedio")
+    @DisplayName("[US7-18] Caja blanca: bucle elemento intermedio")
     void testBucle_PosicionIntermedia() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of(
                 "primero;1;ADMINISTRADOR",
@@ -478,7 +506,7 @@ class US7_AutenticarUsuario_Test {
      */
     @Tag("CajaBlanca")
     @Test
-    @DisplayName("Caja blanca: bucle n-1 pasos (penúltimo elemento)")
+    @DisplayName("[US7-19] Caja blanca: bucle n-1 pasos (penúltimo elemento)")
     void testBucle_PenultimoRegistro() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of(
                 "primero;p1;TECNICO",
@@ -505,7 +533,7 @@ class US7_AutenticarUsuario_Test {
 
     @Tag("CajaBlanca")
     @Test
-    @DisplayName("Caja blanca: intento de doble sesión")
+    @DisplayName("[US7-20] Caja blanca: intento de doble sesión")
     void testEvitarDobleSesion() throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of("admin;1234;ADMINISTRADOR"));
         usuarioDAO.iniciarSesion("admin", "1234");
@@ -530,7 +558,7 @@ class US7_AutenticarUsuario_Test {
             "repo,222,REPONEDOR",
             "tecn,333,TECNICO"
     })
-    @DisplayName("Integración: Todos los empleados pueden listar máquinas")
+    @DisplayName("[US7-21] Integración: Todos los empleados pueden listar máquinas")
     void testPermisosListarMaquinasTodosLosRoles(String nombre, String pass, Rol rol) throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of(nombre + ";" + pass + ";" + rol.name()));
         FachadaAplicacion fachada = new FachadaAplicacion(usuarioDAO);  //Fachada con el DAO con mock
@@ -554,7 +582,7 @@ class US7_AutenticarUsuario_Test {
             "repoUser, 222, REPONEDOR",
             "techUser, 333, TECNICO"
     })
-    @DisplayName("Integración Negativa: Solo el Admin puede modificar máquinas")
+    @DisplayName("[US7-22] Integración Negativa: Solo el Admin puede modificar máquinas")
     void testPermisosModificarMaquinaNegativo(String nombre, String pass, Rol rol) throws Exception {
         when(lectorMock.leerLineas()).thenReturn(List.of(nombre + ";" + pass + ";" + rol.name()));
         FachadaAplicacion fachada = new FachadaAplicacion(usuarioDAO);
