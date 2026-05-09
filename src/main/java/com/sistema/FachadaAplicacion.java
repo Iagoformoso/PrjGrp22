@@ -1,0 +1,247 @@
+package com.sistema;
+
+import java.util.Date;
+import java.util.List;
+
+import com.sistema.datos.MaquinaDAO;
+import com.sistema.datos.ProductoDAO;
+import com.sistema.datos.StockDAO;
+import com.sistema.datos.UsuarioDAO;
+import com.sistema.datos.VentaDAO;
+import com.sistema.excepciones.AutenticacionFallida;
+import com.sistema.excepciones.DatoNoEsperado;
+import com.sistema.excepciones.MaquinaNoEncontrada;
+import com.sistema.excepciones.StockNoEncontrado;
+import com.sistema.excepciones.OperacionNoExitosa;
+import com.sistema.excepciones.UsuarioNoEncontrado;
+import com.sistema.modelo.entidades.MaquinaExpendedora;
+import com.sistema.modelo.entidades.PosicionGPS;
+import com.sistema.modelo.entidades.Producto;
+import com.sistema.modelo.entidades.StockProducto;
+import com.sistema.modelo.entidades.Usuario;
+import com.sistema.modelo.entidades.Venta;
+import com.sistema.modelo.enums.Categoria;
+import com.sistema.modelo.enums.Estado;
+import com.sistema.modelo.enums.MetodoPago;
+import com.sistema.modelo.enums.Rol;
+
+public class FachadaAplicacion {
+    private Usuario usuarioActual;
+    private final UsuarioDAO usuarioDAO;
+    private final MaquinaDAO maquinaDAO;
+    private final ProductoDAO productoDAO;
+    private final StockDAO stockDAO;
+    private final VentaDAO ventaDAO;
+
+    public FachadaAplicacion() {
+        this.usuarioActual = null;
+        this.usuarioDAO = new UsuarioDAO();
+        this.maquinaDAO = new MaquinaDAO();
+        this.productoDAO = new ProductoDAO();
+        this.stockDAO = new StockDAO();
+        this.ventaDAO = new VentaDAO();
+    }
+
+    //Constructor para pruebas de integración
+    public FachadaAplicacion(UsuarioDAO usuarioDAO) {
+        this.usuarioActual = null;
+        this.usuarioDAO = usuarioDAO;
+        this.maquinaDAO = new MaquinaDAO();
+        this.productoDAO = new ProductoDAO();
+        this.stockDAO = new StockDAO();
+        this.ventaDAO = new VentaDAO();
+    }
+
+    // Gestión de Usuarios
+
+    public void iniciarSesion(String nombre, String contrasena) throws UsuarioNoEncontrado, AutenticacionFallida, DatoNoEsperado {
+        this.usuarioActual = usuarioDAO.iniciarSesion(nombre, contrasena)  ; // Rol no se maneja aquí
+    }
+
+    public void cerrarSesion() throws UsuarioNoEncontrado {
+        usuarioDAO.cerrarSesion(usuarioActual);
+        this.usuarioActual = null;
+    }
+
+    // Gestión de Máquinas
+
+    // De momento lanza excepción, a menos que se cambie o tipo de función por
+    // "void"
+    public MaquinaExpendedora crearMaquina(Estado estado, String direccion, float latitud, float longitud, float altitud) throws OperacionNoExitosa {
+        
+        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden crear máquinas.");
+        }
+
+        PosicionGPS gps = new PosicionGPS(latitud, longitud, altitud);
+        MaquinaExpendedora maquina = new MaquinaExpendedora(estado, direccion, gps);
+        maquinaDAO.addMaquina(maquina);
+        return maquina;
+
+    }
+
+    public List<MaquinaExpendedora> listarMaquinas() throws MaquinaNoEncontrada, OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR && usuarioActual.getRol() != Rol.TECNICO)) {
+            throw new OperacionNoExitosa("Debes ser un empleado para buscar máquinas por ID.");
+        }
+        return maquinaDAO.getAllMaquinas();
+    }
+
+    // Método "buscarMaquina" sobrecargado con varias opciones de argumentos de
+    // entrada
+
+    // De momento, lanza excepción
+    public MaquinaExpendedora buscarMaquina(String id) throws MaquinaNoEncontrada, OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR && usuarioActual.getRol() != Rol.TECNICO)) {
+            throw new OperacionNoExitosa("Debes ser un empleado para buscar máquinas por ID.");
+        }
+        return maquinaDAO.getMaquinaPorId(id);
+    }
+
+    // De momento, lanza excepción
+    public MaquinaExpendedora buscarMaquina(PosicionGPS gps) throws MaquinaNoEncontrada {
+        return maquinaDAO.getMaquinaGPS(gps);
+    }
+
+    public void modificarMaquina(MaquinaExpendedora maquina) throws MaquinaNoEncontrada, OperacionNoExitosa {
+        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden modificar máquinas.");
+        }
+        maquinaDAO.modifyMaquina(maquina);
+    }
+
+    public void eliminarMaquina(String id) throws MaquinaNoEncontrada, OperacionNoExitosa {
+
+        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden eliminar máquinas.");
+        }
+
+        maquinaDAO.deleteMaquina(id);
+    }
+
+    // Productos
+
+    public Producto crearProducto(String marca, String nombre, float precio, String descripcion, Categoria categoria) throws OperacionNoExitosa {
+        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden crear productos.");
+        }
+        Producto producto = new Producto(marca, nombre, precio, descripcion, categoria);
+        productoDAO.addProducto(producto);
+        return producto;
+    }
+
+    public List<Producto> listarProductos() throws OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+            throw new OperacionNoExitosa("Debes ser un administrador o un reponedor para listar productos.");
+        }
+        return productoDAO.getAllProductos();
+    }
+
+    public Producto buscarProducto(String id) throws OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+            throw new OperacionNoExitosa("Debes ser un administrador o un reponedor para listar productos.");
+        }
+        return productoDAO.getProductoPorId(id);
+    }
+
+    // Método agregarStock() sobrecargado
+    public void agregarStock(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad)
+            throws MaquinaNoEncontrada, OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+            throw new OperacionNoExitosa("Solo los administradores o reponedores pueden agregar stock.");
+        }
+        MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
+        Producto producto = productoDAO.getProductoPorId(idProducto);
+        StockProducto stock = new StockProducto(producto, maquina, cantidad, fechaCaducidad);
+        stockDAO.addStock(stock);
+    }
+
+    public void agregarStock(String idMaquina, String idProducto, int cantidad) throws MaquinaNoEncontrada, OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+            throw new OperacionNoExitosa("Solo los administradores o reponedores pueden agregar stock.");
+        }
+        agregarStock(idMaquina, idProducto, cantidad, null);
+    }
+
+    // Permite al administrador establecer la cantidad exacta de un producto en una
+    // máquina.
+    public void establecerStockManual(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad)
+            throws MaquinaNoEncontrada, OperacionNoExitosa {
+
+        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR) {
+            throw new OperacionNoExitosa("Solo los administradores o reponedores pueden establecer el stock manualmente.");
+        }
+
+        MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
+        if (maquina == null)
+            throw new MaquinaNoEncontrada("La máquina " + idMaquina + " no existe.");
+        Producto producto = productoDAO.getProductoPorId(idProducto);
+        if (producto == null)
+            throw new OperacionNoExitosa("El producto " + idProducto + " no existe.");
+        StockProducto stockExistente = stockDAO.getStockProductoMaquina(maquina, producto);
+        if (stockExistente != null) {
+            stockExistente.setCantidad(cantidad);
+            stockExistente.setFechaCaducidad(fechaCaducidad);
+            stockDAO.modifyStock(stockExistente);
+        } else {
+            StockProducto nuevoStock = new StockProducto(producto, maquina, cantidad, fechaCaducidad);
+            stockDAO.addStock(nuevoStock);
+        }
+    }
+
+    public List<StockProducto> visualizarProductosYStock(String idMaquina) throws MaquinaNoEncontrada, OperacionNoExitosa {
+
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+            throw new OperacionNoExitosa("Solo los administradores o reponedores pueden ver el stock de las máquinas.");
+        }
+
+        MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
+
+        return stockDAO.getStockMaquina(maquina);
+    }
+
+    public List<StockProducto> getProductosAReponerMaquina(String idMaquina) throws MaquinaNoEncontrada, OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+            throw new OperacionNoExitosa("Solo los administradores o reponedores pueden ver los productos a reponer.");
+        }
+        MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
+        return stockDAO.getStockAReponerMaquina(maquina);
+    }
+
+    public List<StockProducto> getTodosProductosAReponer() throws OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+            throw new OperacionNoExitosa("Solo los administradores o reponedores pueden ver los productos a reponer.");
+        }
+        return stockDAO.getAllStockAReponer();
+    }
+
+    // Ventas
+
+    public void registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago)
+            throws MaquinaNoEncontrada, StockNoEncontrado {
+        MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
+        Producto producto = productoDAO.getProductoPorId(idProducto);
+        StockProducto stock = stockDAO.getStockProductoMaquina(maquina, producto);
+
+        stock.registrarVenta();
+        Venta venta = new Venta(metodoPago, producto, maquina);
+        ventaDAO.addVenta(venta);
+    }
+
+    public List<Venta> getVentasMaquina(String idMaquina) throws MaquinaNoEncontrada, OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR)) {
+            throw new OperacionNoExitosa("Solo los administradores pueden ver las ventas de una máquina.");
+        }
+        MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
+        return ventaDAO.getVentasMaquina(maquina);
+    }
+
+    public List<Venta> getVentasProducto(String idProducto) throws OperacionNoExitosa {
+        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR)) {
+            throw new OperacionNoExitosa("Solo los administradores pueden ver las ventas de un producto.");
+        }
+        Producto producto = productoDAO.getProductoPorId(idProducto);
+        return ventaDAO.getVentasProducto(producto);
+    }
+
+}

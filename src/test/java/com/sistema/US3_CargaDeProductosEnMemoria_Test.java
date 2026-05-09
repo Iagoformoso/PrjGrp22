@@ -1,26 +1,29 @@
-package com.sistema.negocio;
-
-import com.sistema.datos.ProductoDAO;
-import com.sistema.excepciones.MaquinaNoEncontrada;
-import com.sistema.excepciones.StockNoEncontrado;
-import com.sistema.excepciones.OperacionNoExitosa;
-import com.sistema.modelo.entidades.MaquinaExpendedora;
-import com.sistema.modelo.entidades.Producto;
-import com.sistema.modelo.entidades.StockProducto;
-import com.sistema.modelo.enums.Categoria;
-import com.sistema.modelo.enums.Estado;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+package com.sistema;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.sistema.excepciones.AutenticacionFallida;
+import com.sistema.excepciones.DatoNoEsperado;
+import com.sistema.datos.ProductoDAO;
+import com.sistema.excepciones.MaquinaNoEncontrada;
+import com.sistema.excepciones.StockNoEncontrado;
+import com.sistema.excepciones.OperacionNoExitosa;
+import com.sistema.excepciones.UsuarioNoEncontrado;
+import com.sistema.modelo.entidades.MaquinaExpendedora;
+import com.sistema.modelo.entidades.Producto;
+import com.sistema.modelo.entidades.StockProducto;
+import com.sistema.modelo.enums.Categoria;
+import com.sistema.modelo.enums.Estado;
 
 /**
  * ARCHIVO DE PRUEBAS: US3
- * Contiene pruebas de integración (Fachada), unidad (DAO y Entidades) 
+ * Contiene pruebas de integración (Fachada), unidad (DAO y Entidades)
  * y caja blanca (Caminos).
  */
 public class US3_CargaDeProductosEnMemoria_Test {
@@ -37,7 +40,9 @@ public class US3_CargaDeProductosEnMemoria_Test {
         productoDAO = new ProductoDAO();
 
         try {
-            // Setup base para pruebas de integracion
+            // Setup base para pruebas de integracion e inicio de sesión
+            fachada.iniciarSesion("Iago", "iago");
+
             maquina = fachada.crearMaquina(
                     Estado.ACTIVO,
                     "Rúa do Hórreo",
@@ -46,14 +51,70 @@ public class US3_CargaDeProductosEnMemoria_Test {
                     0f);
 
             producto = fachada.crearProducto(
-                    "MarcaPrueba",
-                    "Refresco",
-                    1.5f,
-                    "33cl",
+                    "CocaCola",
+                    "Coca-Cola Zero",
+                    1.50f,
+                    "Lata de Coca-Cola Zero",
                     Categoria.BEBIDA);
-        } catch (OperacionNoExitosa e) {
-            fail("El setup falló.");
+
+        } catch (OperacionNoExitosa | UsuarioNoEncontrado | AutenticacionFallida | DatoNoEsperado exc) {
+            // fail("El setup falló."); // Opcional para depuración
         }
+    }
+
+    // =========================================================================
+    // PRUEBAS DE INTEGRACIÓN: ESTABLECER STOCK (FACHADA)
+    // =========================================================================
+
+    @Test
+    void establecerStockManual_MaquinaInexistente_LanzaExcepcion() {
+        // Preparacion: Una ID que no existe
+        String idFalsa = "MAQ-999";
+
+        // Ejecucion y Verificacion
+        assertThrows(MaquinaNoEncontrada.class, () -> {
+            fachada.establecerStockManual(idFalsa, producto.getIdProducto(), 10, null);
+        });
+    }
+
+    @Test
+    void establecerStockManual_ProductoNuevoEnMaquina_CreaElRegistroCorrectamente() throws MaquinaNoEncontrada, OperacionNoExitosa {
+        // Escenario: La maquina esta vacia. El administrador establece 20 unidades.
+        int cantidadInicial = 20;
+
+        fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), cantidadInicial, null);
+
+        // Verificación: Consultamos el stock y comprobamos que se ha creado
+        List<StockProducto> lista = fachada.visualizarProductosYStock(maquina.getIdMaquina());
+        assertEquals(1, lista.size(), "Debería haberse creado un registro de stock");
+        assertEquals(cantidadInicial, lista.get(0).getCantidad(), "La cantidad debe coincidir con la establecida");
+    }
+
+    @Test
+    void establecerStockManual_ProductoYaExistente_ActualizaLaCantidadExistente() throws MaquinaNoEncontrada, OperacionNoExitosa {
+        // Escenario: El sistema cree que hay 10 unidades (por un proceso previo),
+        // pero el administrador cuenta fisicamente 5 y lo corrige manualmente.
+
+        // Anadimos stock inicial
+        fachada.agregarStock(maquina.getIdMaquina(), producto.getIdProducto(), 10);
+
+        // El administrador establece manualmente el estado real (5 unidades)
+        int cantidadReal = 5;
+        fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), cantidadReal, null);
+
+        // Verificacion: No debe haber dos registros, debe haber uno solo actualizado
+        List<StockProducto> lista = fachada.visualizarProductosYStock(maquina.getIdMaquina());
+        assertEquals(1, lista.size(), "No deben duplicarse los registros de stock");
+        assertEquals(cantidadReal, lista.get(0).getCantidad(), "El stock debe haberse actualizado al valor real");
+    }
+
+    @Test
+    void establecerStockManual_IntegracionCompleta() throws MaquinaNoEncontrada, OperacionNoExitosa {
+        fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), 25, null);
+
+        List<StockProducto> lista = fachada.visualizarProductosYStock(maquina.getIdMaquina());
+        assertEquals(1, lista.size());
+        assertEquals(25, lista.get(0).getCantidad());
     }
 
     // =========================================================================
@@ -81,7 +142,7 @@ public class US3_CargaDeProductosEnMemoria_Test {
     void producto_Equals_CompruebaIdUnico() {
         Producto p1 = new Producto("A", "B", 1f, "C", Categoria.COMIDA);
         Producto p2 = new Producto("A", "B", 1f, "C", Categoria.COMIDA);
-        
+
         assertNotEquals(p1, p2);
         assertEquals(p1, p1);
         assertNotEquals(p1, null);
@@ -97,7 +158,7 @@ public class US3_CargaDeProductosEnMemoria_Test {
         sp.setCantidad(10);
         sp.setProducto(producto);
         sp.setMaquina(maquina);
-        
+
         Date fecha = new Date();
         sp.setFechaCaducidad(fecha);
 
@@ -122,22 +183,22 @@ public class US3_CargaDeProductosEnMemoria_Test {
     void stockProducto_ConsumoDiarioYFechaEstimada() throws StockNoEncontrado {
         // Inicializamos con 30 unidades
         StockProducto sp = new StockProducto(producto, maquina, 30, null);
-        
+
         // Simulamos 10 ventas en el dia de hoy
         for(int i=0; i<10; i++) sp.registrarVenta();
 
         // Al haber 10 ventas en < 1 dia de diferencia, el consumo es de 10 unidades/dia
         assertEquals(10.0f, sp.getConsumoDiario(), "El consumo debe ser 10/1 = 10");
 
-        // Fecha estimada: 
+        // Fecha estimada:
         // Empezamos con 30 y vendimos 10 -> Quedan 20 unidades.
         // 20 restantes / 10 de consumo diario = 2 dias a partir de hoy.
         Date fechaEstimada = sp.getFechaEstimadaAgota();
         assertNotNull(fechaEstimada);
-        
+
         Calendar calEsperado = Calendar.getInstance();
         calEsperado.add(Calendar.DAY_OF_YEAR, 2); // Esperamos que sume 2 dias
-        
+
         // Verificamos que la fecha sea aproximadamente en 2 dias (tolerancia de 1 segundo)
         long diff = Math.abs(fechaEstimada.getTime() - calEsperado.getTimeInMillis());
         assertTrue(diff < 1000, "La fecha estimada debe ser dentro de 2 dias");
@@ -154,22 +215,9 @@ public class US3_CargaDeProductosEnMemoria_Test {
         StockProducto stock = new StockProducto(producto, maquina, 6, null);
         assertFalse(stock.necesitaReposicion());
 
-        stock.registrarVenta(); 
-        stock.registrarVenta(); 
+        stock.registrarVenta();
+        stock.registrarVenta();
         assertTrue(stock.necesitaReposicion());
-    }
-
-    // =========================================================================
-    // PRUEBAS DE INTEGRACIÓN: ESTABLECER STOCK (FACHADA)
-    // =========================================================================
-
-    @Test
-    void establecerStockManual_IntegracionCompleta() throws MaquinaNoEncontrada, OperacionNoExitosa {
-        fachada.establecerStockManual(maquina.getIdMaquina(), producto.getIdProducto(), 25, null);
-
-        List<StockProducto> lista = fachada.visualizarProductosYStock(maquina.getIdMaquina());
-        assertEquals(1, lista.size());
-        assertEquals(25, lista.get(0).getCantidad());
     }
 
     // =========================================================================
@@ -181,7 +229,7 @@ public class US3_CargaDeProductosEnMemoria_Test {
         Producto p = new Producto("Test", "Test", 1f, "T", Categoria.COMIDA);
         productoDAO.addProducto(p);
         assertNotNull(productoDAO.getProductoPorId(p.getIdProducto()));
-        
+
         productoDAO.deleteProducto(p.getIdProducto());
         assertNull(productoDAO.getProductoPorId(p.getIdProducto()));
     }

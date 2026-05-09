@@ -5,16 +5,19 @@ import java.util.Date;
 import java.util.UUID;
 
 import com.sistema.excepciones.StockNoEncontrado;
+import com.sistema.predicciones_alertas.GeneradorAlertas;
 
 public class StockProducto {
     private String idStock;
     private int cantidad;
     private int ventas;
+    private boolean necesitaReposicion = false;
+    // private Date fechaEstimadaAgota; ES CALCULADO
     private Date fechaReferenciaConsumo;
     private Date fechaCaducidad;
     private Producto producto;
     private MaquinaExpendedora maquina;
-    private com.sistema.negocio.predicciones_alertas.GeneradorAlertas generadorAlertas;
+    private GeneradorAlertas generadorAlertas;
 
     public StockProducto() {
         this.idStock = "STOCK-" + UUID.randomUUID().toString().substring(0, 8);
@@ -88,6 +91,10 @@ public class StockProducto {
 
     public void setMaquina(MaquinaExpendedora maquina) {
         this.maquina = maquina;
+    }
+
+    public void setNecesitaReposicion(Boolean necesitaReposicion) {
+        this.necesitaReposicion = necesitaReposicion;
     }
 
     public void setFechaCaducidad(Date fechaCaducidad) {

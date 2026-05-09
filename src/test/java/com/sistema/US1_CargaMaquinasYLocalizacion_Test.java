@@ -1,4 +1,4 @@
-package com.sistema.negocio;
+package com.sistema;
 
 import java.util.List;
 
@@ -13,8 +13,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import com.sistema.excepciones.AutenticacionFallida;
+import com.sistema.excepciones.DatoNoEsperado;
 import com.sistema.excepciones.MaquinaNoEncontrada;
 import com.sistema.excepciones.OperacionNoExitosa;
+import com.sistema.excepciones.UsuarioNoEncontrado;
 import com.sistema.modelo.entidades.MaquinaExpendedora;
 import com.sistema.modelo.enums.Estado;
 
@@ -32,6 +35,8 @@ public class US1_CargaMaquinasYLocalizacion_Test {
 
                 try {
 
+                        fachada.iniciarSesion("Iago", "iago");
+
                         maquina = fachada.crearMaquina(
                                 Estado.ACTIVO,
                                 "Rúa do Hórreo",
@@ -39,7 +44,7 @@ public class US1_CargaMaquinasYLocalizacion_Test {
                                 -8.544f,
                                 0f);
 
-                } catch (OperacionNoExitosa one) {
+                } catch (OperacionNoExitosa | UsuarioNoEncontrado | AutenticacionFallida | DatoNoEsperado exc) {
 
                 }
 
@@ -52,6 +57,7 @@ public class US1_CargaMaquinasYLocalizacion_Test {
         @DisplayName("HU1-CN1: Crear máquina válida se guarda correctamente")
         void crearMaquina_MaquinaValida_SeGuardaCorrectamente() throws Exception {
                 // Se crea una nueva máquina
+
                 MaquinaExpendedora nueva = fachada.crearMaquina(
                         Estado.ACTIVO, "Praza de Galicia",
                         42.877f, -8.545f,
@@ -197,6 +203,8 @@ public class US1_CargaMaquinasYLocalizacion_Test {
         void buscarMaquina_ListaVacia_LanzaExcepcion() throws Exception {
                 // Se crea una nueva fachada vacía
                 FachadaAplicacion fachadaVacia = new FachadaAplicacion();
+
+                fachadaVacia.iniciarSesion("Iago", "iago");
 
                 assertThrows(MaquinaNoEncontrada.class,
                         () -> fachadaVacia.buscarMaquina("MAQ-CUALQUIERA"));
