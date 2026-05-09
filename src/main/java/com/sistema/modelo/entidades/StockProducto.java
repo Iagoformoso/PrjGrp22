@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-import com.sistema.excepciones.NoStockException;
+import com.sistema.excepciones.StockTerminado;
 import com.sistema.predicciones_alertas.GeneradorAlertas;
 
 public class StockProducto {
@@ -177,13 +177,13 @@ public class StockProducto {
         return !fechaCaducidad.after(limite.getTime());
     }
 
-    public void registrarVenta() throws NoStockException {
+    public void registrarVenta() throws StockTerminado {
         if (cantidad > 0) {
             this.cantidad--;
             this.ventas++;
         } else {
             // return null; //Podríamos meter una Illegal Exception?
-            throw new NoStockException("No hay existencias disponibles");
+            throw new StockTerminado("No hay existencias disponibles");
         }
         // Al registrar una venta se evalua si se necesita una reposicion
         // if (generadorAlertas.generarAlertaStock() == true) {

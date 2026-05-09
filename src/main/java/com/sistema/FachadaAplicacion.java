@@ -42,6 +42,16 @@ public class FachadaAplicacion {
         this.ventaDAO = new VentaDAO();
     }
 
+    //Constructor para pruebas de integración
+    public FachadaAplicacion(UsuarioDAO usuarioDAO) {
+        this.usuarioActual = null;
+        this.usuarioDAO = usuarioDAO;
+        this.maquinaDAO = new MaquinaDAO();
+        this.productoDAO = new ProductoDAO();
+        this.stockDAO = new StockDAO();
+        this.ventaDAO = new VentaDAO();
+    }
+
     // Gestión de Usuarios
 
     public void iniciarSesion(String nombre, String contrasena) throws UsuarioNoEncontrado, AutenticacionFallida, DatoNoEsperado {
@@ -208,7 +218,7 @@ public class FachadaAplicacion {
     // Ventas
 
     public void registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago)
-            throws MaquinaNoEncontrada, StockNoEncontrado {
+            throws MaquinaNoEncontrada {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
         StockProducto stock = stockDAO.getStockProductoMaquina(maquina, producto);

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.sistema.datos.UsuarioDAO;
+import com.sistema.modelo.entidades.MaquinaExpendedora;
+import com.sistema.modelo.enums.Estado;
 import com.sistema.utilidades.LectorUsuarios;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -512,4 +514,58 @@ class US7_AutenticarUsuario_Test {
             () -> usuarioDAO.iniciarSesion("admin", "1234"),
     "No se debe permitir que el mismo usuario inicie sesión dos veces");
     }
+
+
+    /* ---PRUEBAS DE INTEGRACIÓN--- */
+
+    /*
+     * Funcionalidad probada: permisos de acceso a funcionalidades
+     * Caso probado: acceso a funcionalidades si se tiene permiso
+     * Salida esperada: todos los roles (ADMINISTRADOR, REPONEDOR, TECNICO) pueden listar máquinas
+     */
+    @Tag("Integracion")
+    @ParameterizedTest
+    @CsvSource({
+            "admin,111,ADMINISTRADOR",
+            "repo,222,REPONEDOR",
+            "tecn,333,TECNICO"
+    })
+    @DisplayName("Integración: Todos los empleados pueden listar máquinas")
+    void testPermisosListarMaquinasTodosLosRoles(String nombre, String pass, Rol rol) throws Exception {
+        when(lectorMock.leerLineas()).thenReturn(List.of(nombre + ";" + pass + ";" + rol.name()));
+        FachadaAplicacion fachada = new FachadaAplicacion(usuarioDAO);  //Fachada con el DAO con mock
+        fachada.iniciarSesion(nombre, pass);
+
+        assertDoesNotThrow(
+            () -> fachada.listarMaquinas(),
+    "El rol " + rol + " debería tener permiso de acceso");
+    }
+
+    /*
+     * Funcionalidad probada: permisos de acceso a funcionalidades
+     * Caso probado: acceso prohibido a funcionalidades si no se tiene permiso
+     * Salida esperada: los roles (REPONEDOR, TECNICO) no pueden modificar máquinas
+     */
+    @Tag("Integracion")
+    @ParameterizedTest
+    @CsvSource({
+            "repoUser, 222, REPONEDOR",
+            "techUser, 333, TECNICO"
+    })
+    @DisplayName("Integración Negativa: Solo el Admin puede modificar máquinas")
+    void testPermisosModificarMaquinaNegativo(String nombre, String pass, Rol rol) throws Exception {
+        when(lectorMock.leerLineas()).thenReturn(List.of(nombre + ";" + pass + ";" + rol.name()));
+        FachadaAplicacion fachada = new FachadaAplicacion(usuarioDAO);
+
+        fachada.iniciarSesion(nombre, pass);
+
+        MaquinaExpendedora m = new MaquinaExpendedora(Estado.ACTIVO, "Direccion", null);
+
+        assertThrows(OperacionNoExitosa.class, () -> {
+            fachada.modificarMaquina(m);
+        }, "El rol " + rol + " no tiene permiso y no se lazó OperacionNoExitosa");
+
+        fachada.cerrarSesion();
+    }
+
 }
