@@ -1,0 +1,5 @@
+Iago;iago;ADMINISTRADOR
+PabloF;pablof;ADMINISTRADOR
+Enrique;enrique;REPONEDOR
+Miguel;miguel;TECNICO
+PabloG;pablog;REPONEDOR

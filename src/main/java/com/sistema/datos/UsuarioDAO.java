@@ -20,7 +20,7 @@ public class UsuarioDAO {
 
     public UsuarioDAO() {
         this.usuariosConectados = new ArrayList<>();
-        this.lector = new LectorUsuarios("usuarios.txt");
+        this.lector = new LectorUsuarios("Usuarios.txt");
     }
 
     //Constructor para los tests

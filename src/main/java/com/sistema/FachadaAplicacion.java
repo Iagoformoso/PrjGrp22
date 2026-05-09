@@ -218,7 +218,7 @@ public class FachadaAplicacion {
     // Ventas
 
     public void registrarVenta(String idMaquina, String idProducto, MetodoPago metodoPago)
-            throws MaquinaNoEncontrada {
+            throws MaquinaNoEncontrada, StockNoEncontrado {
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
         Producto producto = productoDAO.getProductoPorId(idProducto);
         StockProducto stock = stockDAO.getStockProductoMaquina(maquina, producto);
