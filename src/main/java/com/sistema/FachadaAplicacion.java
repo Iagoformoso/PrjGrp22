@@ -6,6 +6,7 @@ import java.util.List;
 import com.sistema.datos.MaquinaDAO;
 import com.sistema.datos.ProductoDAO;
 import com.sistema.datos.StockDAO;
+import com.sistema.datos.TrabajadorDAO;
 import com.sistema.datos.UsuarioDAO;
 import com.sistema.datos.VentaDAO;
 import com.sistema.excepciones.AutenticacionFallida;
@@ -32,6 +33,7 @@ public class FachadaAplicacion {
     private final ProductoDAO productoDAO;
     private final StockDAO stockDAO;
     private final VentaDAO ventaDAO;
+    private final TrabajadorDAO trabajadorDAO;
 
     public FachadaAplicacion() {
         this.usuarioActual = null;
@@ -40,12 +42,24 @@ public class FachadaAplicacion {
         this.productoDAO = new ProductoDAO();
         this.stockDAO = new StockDAO();
         this.ventaDAO = new VentaDAO();
+        this.trabajadorDAO = new TrabajadorDAO();
     }
 
-    //Constructor para pruebas de integración
+    // Constructor para pruebas de integración
     public FachadaAplicacion(UsuarioDAO usuarioDAO) {
         this.usuarioActual = null;
         this.usuarioDAO = usuarioDAO;
+        this.maquinaDAO = new MaquinaDAO();
+        this.productoDAO = new ProductoDAO();
+        this.stockDAO = new StockDAO();
+        this.ventaDAO = new VentaDAO();
+        this.trabajadorDAO = new TrabajadorDAO();
+    }
+
+    public FachadaAplicacion(UsuarioDAO usuarioDAO, TrabajadorDAO trabajadorDAO) {
+        this.usuarioActual = null;
+        this.usuarioDAO = usuarioDAO;
+        this.trabajadorDAO = trabajadorDAO;
         this.maquinaDAO = new MaquinaDAO();
         this.productoDAO = new ProductoDAO();
         this.stockDAO = new StockDAO();
@@ -54,8 +68,9 @@ public class FachadaAplicacion {
 
     // Gestión de Usuarios
 
-    public void iniciarSesion(String nombre, String contrasena) throws UsuarioNoEncontrado, AutenticacionFallida, DatoNoEsperado {
-        this.usuarioActual = usuarioDAO.iniciarSesion(nombre, contrasena)  ; // Rol no se maneja aquí
+    public void iniciarSesion(String nombre, String contrasena)
+            throws UsuarioNoEncontrado, AutenticacionFallida, DatoNoEsperado {
+        this.usuarioActual = usuarioDAO.iniciarSesion(nombre, contrasena); // Rol no se maneja aquí
     }
 
     public void cerrarSesion() throws UsuarioNoEncontrado {
@@ -67,9 +82,10 @@ public class FachadaAplicacion {
 
     // De momento lanza excepción, a menos que se cambie o tipo de función por
     // "void"
-    public MaquinaExpendedora crearMaquina(Estado estado, String direccion, float latitud, float longitud, float altitud) throws OperacionNoExitosa {
-        
-        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+    public MaquinaExpendedora crearMaquina(Estado estado, String direccion, float latitud, float longitud,
+            float altitud) throws OperacionNoExitosa {
+
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
             throw new OperacionNoExitosa("Solo los administradores pueden crear máquinas.");
         }
 
@@ -81,7 +97,8 @@ public class FachadaAplicacion {
     }
 
     public List<MaquinaExpendedora> listarMaquinas() throws MaquinaNoEncontrada, OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR && usuarioActual.getRol() != Rol.TECNICO)) {
+        if (usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR
+                && usuarioActual.getRol() != Rol.REPONEDOR && usuarioActual.getRol() != Rol.TECNICO)) {
             throw new OperacionNoExitosa("Debes ser un empleado para buscar máquinas por ID.");
         }
         return maquinaDAO.getAllMaquinas();
@@ -92,7 +109,8 @@ public class FachadaAplicacion {
 
     // De momento, lanza excepción
     public MaquinaExpendedora buscarMaquina(String id) throws MaquinaNoEncontrada, OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR && usuarioActual.getRol() != Rol.TECNICO)) {
+        if (usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR
+                && usuarioActual.getRol() != Rol.REPONEDOR && usuarioActual.getRol() != Rol.TECNICO)) {
             throw new OperacionNoExitosa("Debes ser un empleado para buscar máquinas por ID.");
         }
         return maquinaDAO.getMaquinaPorId(id);
@@ -104,7 +122,7 @@ public class FachadaAplicacion {
     }
 
     public void modificarMaquina(MaquinaExpendedora maquina) throws MaquinaNoEncontrada, OperacionNoExitosa {
-        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
             throw new OperacionNoExitosa("Solo los administradores pueden modificar máquinas.");
         }
         maquinaDAO.modifyMaquina(maquina);
@@ -112,7 +130,7 @@ public class FachadaAplicacion {
 
     public void eliminarMaquina(String id) throws MaquinaNoEncontrada, OperacionNoExitosa {
 
-        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
             throw new OperacionNoExitosa("Solo los administradores pueden eliminar máquinas.");
         }
 
@@ -121,8 +139,9 @@ public class FachadaAplicacion {
 
     // Productos
 
-    public Producto crearProducto(String marca, String nombre, float precio, String descripcion, Categoria categoria) throws OperacionNoExitosa {
-        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+    public Producto crearProducto(String marca, String nombre, float precio, String descripcion, Categoria categoria)
+            throws OperacionNoExitosa {
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
             throw new OperacionNoExitosa("Solo los administradores pueden crear productos.");
         }
         Producto producto = new Producto(marca, nombre, precio, descripcion, categoria);
@@ -131,14 +150,16 @@ public class FachadaAplicacion {
     }
 
     public List<Producto> listarProductos() throws OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+        if (usuarioActual == null
+                || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
             throw new OperacionNoExitosa("Debes ser un administrador o un reponedor para listar productos.");
         }
         return productoDAO.getAllProductos();
     }
 
     public Producto buscarProducto(String id) throws OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+        if (usuarioActual == null
+                || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
             throw new OperacionNoExitosa("Debes ser un administrador o un reponedor para listar productos.");
         }
         return productoDAO.getProductoPorId(id);
@@ -147,7 +168,8 @@ public class FachadaAplicacion {
     // Método agregarStock() sobrecargado
     public void agregarStock(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad)
             throws MaquinaNoEncontrada, OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+        if (usuarioActual == null
+                || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
             throw new OperacionNoExitosa("Solo los administradores o reponedores pueden agregar stock.");
         }
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
@@ -156,8 +178,10 @@ public class FachadaAplicacion {
         stockDAO.addStock(stock);
     }
 
-    public void agregarStock(String idMaquina, String idProducto, int cantidad) throws MaquinaNoEncontrada, OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+    public void agregarStock(String idMaquina, String idProducto, int cantidad)
+            throws MaquinaNoEncontrada, OperacionNoExitosa {
+        if (usuarioActual == null
+                || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
             throw new OperacionNoExitosa("Solo los administradores o reponedores pueden agregar stock.");
         }
         agregarStock(idMaquina, idProducto, cantidad, null);
@@ -168,8 +192,10 @@ public class FachadaAplicacion {
     public void establecerStockManual(String idMaquina, String idProducto, int cantidad, Date fechaCaducidad)
             throws MaquinaNoEncontrada, OperacionNoExitosa {
 
-        if(usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR) {
-            throw new OperacionNoExitosa("Solo los administradores o reponedores pueden establecer el stock manualmente.");
+        if (usuarioActual == null
+                || usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR) {
+            throw new OperacionNoExitosa(
+                    "Solo los administradores o reponedores pueden establecer el stock manualmente.");
         }
 
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
@@ -189,9 +215,11 @@ public class FachadaAplicacion {
         }
     }
 
-    public List<StockProducto> visualizarProductosYStock(String idMaquina) throws MaquinaNoEncontrada, OperacionNoExitosa {
+    public List<StockProducto> visualizarProductosYStock(String idMaquina)
+            throws MaquinaNoEncontrada, OperacionNoExitosa {
 
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+        if (usuarioActual == null
+                || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
             throw new OperacionNoExitosa("Solo los administradores o reponedores pueden ver el stock de las máquinas.");
         }
 
@@ -200,8 +228,10 @@ public class FachadaAplicacion {
         return stockDAO.getStockMaquina(maquina);
     }
 
-    public List<StockProducto> getProductosAReponerMaquina(String idMaquina) throws MaquinaNoEncontrada, OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+    public List<StockProducto> getProductosAReponerMaquina(String idMaquina)
+            throws MaquinaNoEncontrada, OperacionNoExitosa {
+        if (usuarioActual == null
+                || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
             throw new OperacionNoExitosa("Solo los administradores o reponedores pueden ver los productos a reponer.");
         }
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
@@ -209,7 +239,8 @@ public class FachadaAplicacion {
     }
 
     public List<StockProducto> getTodosProductosAReponer() throws OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
+        if (usuarioActual == null
+                || (usuarioActual.getRol() != Rol.ADMINISTRADOR && usuarioActual.getRol() != Rol.REPONEDOR)) {
             throw new OperacionNoExitosa("Solo los administradores o reponedores pueden ver los productos a reponer.");
         }
         return stockDAO.getAllStockAReponer();
@@ -229,7 +260,7 @@ public class FachadaAplicacion {
     }
 
     public List<Venta> getVentasMaquina(String idMaquina) throws MaquinaNoEncontrada, OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR)) {
+        if (usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR)) {
             throw new OperacionNoExitosa("Solo los administradores pueden ver las ventas de una máquina.");
         }
         MaquinaExpendedora maquina = maquinaDAO.getMaquinaPorId(idMaquina);
@@ -237,11 +268,133 @@ public class FachadaAplicacion {
     }
 
     public List<Venta> getVentasProducto(String idProducto) throws OperacionNoExitosa {
-        if(usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR)) {
+        if (usuarioActual == null || (usuarioActual.getRol() != Rol.ADMINISTRADOR)) {
             throw new OperacionNoExitosa("Solo los administradores pueden ver las ventas de un producto.");
         }
         Producto producto = productoDAO.getProductoPorId(idProducto);
         return ventaDAO.getVentasProducto(producto);
     }
 
+    // -------------------------------------------------------------------------
+    // HU8 — Conceder / revocar permisos
+    // Solo un ADMINISTRADOR puede cambiar el rol de usuarios con rol inferior
+    // (REPONEDOR o TECNICO). No puede afectar a otros administradores.
+    // -------------------------------------------------------------------------
+
+    /**
+     * Asigna un nuevo rol a un trabajador registrado en el sistema.
+     * Solo un ADMINISTRADOR puede invocar este método, y solo sobre
+     * usuarios con rol REPONEDOR o TECNICO (no sobre otros administradores).
+     */
+    public void asignarRol(String nombreTrabajador, Rol nuevoRol)
+            throws UsuarioNoEncontrado, OperacionNoExitosa {
+
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden asignar roles.");
+        }
+
+        Usuario trabajador = trabajadorDAO.getTrabajadorPorNombre(nombreTrabajador);
+
+        if (trabajador.getRol() == nuevoRol) {
+            throw new OperacionNoExitosa("El trabajador ya tiene el rol: " + nuevoRol);
+        }
+
+        trabajador.setRol(nuevoRol);
+        trabajadorDAO.modifyTrabajador(trabajador);
+    }
+
+    /**
+     * Revoca el rol actual de un trabajador, dejándolo como REPONEDOR por defecto.
+     * Equivale a bajarle permisos. Solo aplicable a no-administradores.
+     */
+    public void revocarRol(String nombreTrabajador)
+            throws UsuarioNoEncontrado, OperacionNoExitosa {
+
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden revocar roles.");
+        }
+
+        Usuario trabajador = trabajadorDAO.getTrabajadorPorNombre(nombreTrabajador);
+
+        if (trabajador.getRol() == Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("No se puede revocar el rol de otro administrador.");
+        }
+
+        trabajador.setRol(Rol.REPONEDOR);
+        trabajadorDAO.modifyTrabajador(trabajador);
+    }
+
+    // -------------------------------------------------------------------------
+    // HU9 — Gestionar trabajadores
+    // Un ADMINISTRADOR puede registrar, consultar y modificar datos laborales
+    // de usuarios con rol REPONEDOR o TECNICO.
+    // -------------------------------------------------------------------------
+
+    /**
+     * Registra un nuevo trabajador (REPONEDOR o TECNICO) con sus datos laborales.
+     */
+    public void registrarTrabajador(String nombre, Rol rol, String email,
+            String telefono, String turno)
+            throws OperacionNoExitosa {
+
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden registrar trabajadores.");
+        }
+
+        if (rol == Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("No se pueden registrar administradores como trabajadores.");
+        }
+
+        Usuario trabajador = new Usuario(nombre, rol, email, telefono, turno);
+        trabajadorDAO.addTrabajador(trabajador);
+    }
+
+    /**
+     * Devuelve los datos laborales de un trabajador concreto.
+     */
+    public Usuario consultarTrabajador(String nombre)
+            throws UsuarioNoEncontrado, OperacionNoExitosa {
+
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden consultar datos de trabajadores.");
+        }
+
+        return trabajadorDAO.getTrabajadorPorNombre(nombre);
+    }
+
+    /**
+     * Devuelve la lista completa de trabajadores registrados.
+     */
+    public List<Usuario> listarTrabajadores() throws OperacionNoExitosa {
+
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden listar trabajadores.");
+        }
+
+        return trabajadorDAO.getAllTrabajadores();
+    }
+
+    /**
+     * Modifica los datos laborales (email, teléfono, turno) de un trabajador.
+     * No permite cambiar el nombre ni el rol desde aquí (para eso está HU8).
+     */
+    public void modificarDatosTrabajador(String nombre, String nuevoEmail,
+            String nuevoTelefono, String nuevoTurno)
+            throws UsuarioNoEncontrado, OperacionNoExitosa {
+
+        if (usuarioActual == null || usuarioActual.getRol() != Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("Solo los administradores pueden modificar datos de trabajadores.");
+        }
+
+        Usuario trabajador = trabajadorDAO.getTrabajadorPorNombre(nombre);
+
+        if (trabajador.getRol() == Rol.ADMINISTRADOR) {
+            throw new OperacionNoExitosa("No se pueden modificar datos de otro administrador.");
+        }
+
+        trabajador.setEmail(nuevoEmail);
+        trabajador.setTelefono(nuevoTelefono);
+        trabajador.setTurno(nuevoTurno);
+        trabajadorDAO.modifyTrabajador(trabajador);
+    }
 }
