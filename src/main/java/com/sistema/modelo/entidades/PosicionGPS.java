@@ -71,6 +71,7 @@ public class PosicionGPS {
 
     @Override
     public int hashCode() {
+        if (idGPS == null) return 0;
         return java.util.Objects.hash(idGPS);
     }
 
