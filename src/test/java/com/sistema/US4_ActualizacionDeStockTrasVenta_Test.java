@@ -512,4 +512,43 @@ public class US4_ActualizacionDeStockTrasVenta_Test {
         assertEquals(MetodoPago.EFECTIVO, recuperada.getMetodoPago(),
                 "El metodo de pago debe ser el modificado");
     }
+
+    /*
+    * PRUEBA DE CAJA NEGRA - Constructor sin argumentos de Venta
+    *
+    * Caso probado: creacion de una venta con el constructor por defecto.
+    * Entrada: ninguna.
+    * Salida esperada:
+    * - idVenta no nulo, empieza por "VENTA-" y tiene longitud esperada.
+    * - timestamp no nulo y cercano al momento actual.
+    * - Los demas campos (producto, maquina, metodoPago) quedan null.
+    */
+    @Test
+    void constructorVacio_InicializaIdYTimestamp() {
+        long antes = System.currentTimeMillis();
+
+        Venta venta = new Venta();
+
+        long despues = System.currentTimeMillis();
+
+        assertNotNull(venta.getIdVenta(), "El id no debe ser nulo");
+        assertTrue(venta.getIdVenta().startsWith("VENTA-"),
+                "El id debe empezar por VENTA-");
+        assertEquals(14, venta.getIdVenta().length(),
+                "El id debe tener 13 caracteres (6 de prefijo + 8 de UUID)");
+
+        assertNotNull(venta.getTimestamp(),
+                "El timestamp no debe ser nulo");
+        // verificamos que la fecha esta dentro del rango esperado
+        java.util.Date fecha = venta.getTimestamp();
+        assertTrue(fecha.getTime() >= antes,
+                "La fecha debe ser posterior o igual al instante antes de crear la venta");
+        assertTrue(fecha.getTime() <= despues,
+                "La fecha debe ser anterior o igual al instante despues de crear la venta");
+
+        // los campos no inicializados deben ser null
+        assertNull(venta.getMetodoPago(), "El metodo de pago debe ser null");
+        assertNull(venta.getProducto(), "El producto debe ser null");
+        assertNull(venta.getMaquinaExpendedora(), "La maquina debe ser null");
+    }
 }
