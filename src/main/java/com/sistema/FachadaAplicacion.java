@@ -56,6 +56,16 @@ public class FachadaAplicacion {
         this.trabajadorDAO = new TrabajadorDAO();
     }
 
+    public FachadaAplicacion(UsuarioDAO usuarioDAO, TrabajadorDAO trabajadorDAO) {
+        this.usuarioActual = null;
+        this.usuarioDAO = usuarioDAO;
+        this.trabajadorDAO = trabajadorDAO;
+        this.maquinaDAO = new MaquinaDAO();
+        this.productoDAO = new ProductoDAO();
+        this.stockDAO = new StockDAO();
+        this.ventaDAO = new VentaDAO();
+    }
+
     // Gestión de Usuarios
 
     public void iniciarSesion(String nombre, String contrasena)
@@ -284,10 +294,6 @@ public class FachadaAplicacion {
         }
 
         Usuario trabajador = trabajadorDAO.getTrabajadorPorNombre(nombreTrabajador);
-
-        if (trabajador.getRol() == Rol.ADMINISTRADOR) {
-            throw new OperacionNoExitosa("No se puede cambiar el rol de otro administrador.");
-        }
 
         if (trabajador.getRol() == nuevoRol) {
             throw new OperacionNoExitosa("El trabajador ya tiene el rol: " + nuevoRol);
