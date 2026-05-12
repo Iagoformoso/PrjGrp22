@@ -11,7 +11,7 @@ public class StockProducto {
     private String idStock;
     private int cantidad;
     private int ventas;
-    private boolean necesitaReposicion = false;
+    // private boolean necesitaReposicion = false; ES CALCULADO
     // private Date fechaEstimadaAgota; ES CALCULADO
     private Date fechaReferenciaConsumo;
     private Date fechaCaducidad;
@@ -91,10 +91,6 @@ public class StockProducto {
 
     public void setMaquina(MaquinaExpendedora maquina) {
         this.maquina = maquina;
-    }
-
-    public void setNecesitaReposicion(Boolean necesitaReposicion) {
-        this.necesitaReposicion = necesitaReposicion;
     }
 
     public void setFechaCaducidad(Date fechaCaducidad) {
